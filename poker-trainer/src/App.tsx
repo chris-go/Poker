@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import GameSettings from './components/settings/GameSettings';
 import PuzzleView from './components/puzzles/PuzzleView';
@@ -10,6 +10,7 @@ const AppContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
 `;
 
 const Header = styled.header`
@@ -25,28 +26,6 @@ const Title = styled.h1`
 const Subtitle = styled.p`
   color: #7f8c8d;
   font-size: 18px;
-`;
-
-const TabsContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-`;
-
-const Tab = styled.button<{ active: boolean }>`
-  padding: 10px 20px;
-  background-color: ${props => props.active ? '#3498db' : '#ecf0f1'};
-  color: ${props => props.active ? 'white' : '#7f8c8d'};
-  border: none;
-  border-radius: 5px;
-  margin: 0 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  
-  &:hover {
-    background-color: ${props => props.active ? '#2980b9' : '#bdc3c7'};
-  }
 `;
 
 const MainContent = styled.main`
@@ -83,8 +62,67 @@ const StatValue = styled.div`
   font-weight: bold;
 `;
 
+const HamburgerButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    background-color: #e9ecef;
+  }
+  
+  span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #2c3e50;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+  }
+`;
+
+const SettingsPanel = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 350px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+  transition: transform 0.3s ease;
+  z-index: 99;
+  overflow-y: auto;
+  padding: 60px 20px 20px;
+`;
+
+const Overlay = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  display: ${props => props.isOpen ? 'block' : 'none'};
+`;
+
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'settings' | 'puzzle'>('settings');
+  const [settingsPanelOpen, setSettingsPanelOpen] = useState(false);
   const [settings, setSettings] = useState<GameSettingsType>({
     gameType: 'CASH',
     playerCount: 6,
@@ -99,10 +137,15 @@ const App: React.FC = () => {
     total: 0,
   });
   
+  // Generate a puzzle when the component mounts
+  useEffect(() => {
+    generateNewPuzzle();
+  }, []);
+  
   const handleSettingsChange = (newSettings: GameSettingsType) => {
     setSettings(newSettings);
     generateNewPuzzle(newSettings);
-    setActiveTab('puzzle');
+    setSettingsPanelOpen(false); // Close the settings panel after applying
   };
   
   const generateNewPuzzle = (settingsToUse: GameSettingsType = settings) => {
@@ -136,42 +179,36 @@ const App: React.FC = () => {
     ? Math.round((stats.correct / stats.total) * 100) 
     : 0;
   
+  const toggleSettingsPanel = () => {
+    setSettingsPanelOpen(!settingsPanelOpen);
+  };
+  
   return (
     <AppContainer>
+      <HamburgerButton onClick={toggleSettingsPanel}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </HamburgerButton>
+      
+      <Overlay isOpen={settingsPanelOpen} onClick={() => setSettingsPanelOpen(false)} />
+      
+      <SettingsPanel isOpen={settingsPanelOpen}>
+        <GameSettings onSettingsChange={handleSettingsChange} initialSettings={settings} />
+      </SettingsPanel>
+      
       <Header>
         <Title>Poker Trainer</Title>
         <Subtitle>Practice your decision-making skills in different poker scenarios</Subtitle>
       </Header>
       
-      <TabsContainer>
-        <Tab 
-          active={activeTab === 'settings'} 
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </Tab>
-        <Tab 
-          active={activeTab === 'puzzle'} 
-          onClick={() => {
-            if (puzzle) {
-              setActiveTab('puzzle');
-            } else {
-              generateNewPuzzle();
-              setActiveTab('puzzle');
-            }
-          }}
-        >
-          Puzzles
-        </Tab>
-      </TabsContainer>
-      
       <MainContent>
-        {activeTab === 'settings' && (
-          <GameSettings onSettingsChange={handleSettingsChange} initialSettings={settings} />
-        )}
-        
-        {activeTab === 'puzzle' && puzzle && (
+        {puzzle ? (
           <PuzzleView puzzle={puzzle} onActionSelected={handleActionSelected} />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            Loading puzzle...
+          </div>
         )}
       </MainContent>
       
