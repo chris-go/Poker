@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { GameType, Position, GameSettings as GameSettingsType } from '../../types/poker';
-import { ALL_POSITIONS } from '../../utils/pokerUtils';
+import { getPositionsForPlayerCount } from '../../utils/pokerUtils';
 
 interface GameSettingsProps {
   onSettingsChange: (settings: GameSettingsType) => void;
@@ -96,6 +96,21 @@ const GameSettings: React.FC<GameSettingsProps> = ({
   initialSettings = defaultSettings 
 }) => {
   const [settings, setSettings] = useState<GameSettingsType>(initialSettings);
+  const [availablePositions, setAvailablePositions] = useState<Position[]>([]);
+  
+  // Update available positions when player count changes
+  useEffect(() => {
+    const positions = getPositionsForPlayerCount(settings.playerCount);
+    setAvailablePositions(positions);
+    
+    // If current position is not available in the new set of positions, update to first available
+    if (!positions.includes(settings.userPosition)) {
+      setSettings(prev => ({
+        ...prev,
+        userPosition: positions[0]
+      }));
+    }
+  }, [settings.playerCount, settings.userPosition]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -167,7 +182,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({
             value={settings.userPosition}
             onChange={handleChange}
           >
-            {ALL_POSITIONS.map(pos => (
+            {availablePositions.map(pos => (
               <option key={pos} value={pos}>{pos}</option>
             ))}
           </Select>

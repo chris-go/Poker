@@ -1,6 +1,7 @@
 import { Card, GameType, Position, PokerPuzzle, Player } from '../types/poker';
 
 // Array of positions in clockwise order around a poker table
+// In clockwise order: SB, BB, UTG, MP, HJ, CO, BTN
 export const ALL_POSITIONS: Position[] = ['SB', 'BB', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
 
 // Calculate positions based on number of players
@@ -21,7 +22,7 @@ export const getPositionsForPlayerCount = (count: number): Position[] => {
   
   // For 4 players
   if (count === 4) {
-    return ['SB', 'BB', 'CO', 'BTN'];
+    return ['SB', 'BB', 'UTG', 'BTN'];
   }
   
   // For 5 players

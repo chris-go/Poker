@@ -70,10 +70,28 @@ const getPlayerPosition = (index: number, total: number): { top: string; left: s
 };
 
 const PokerTable: React.FC<PokerTableProps> = ({ players, communityCards, pot, activePosition }) => {
+  // Sort players to ensure they are in clockwise order
+  // In poker, the standard order is SB, BB, UTG, MP, HJ, CO, BTN
+  const sortedPlayers = [...players].sort((a, b) => {
+    // Define the clockwise order of positions
+    const positionOrder = ['SB', 'BB', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
+    
+    // Find the index of each position in the order
+    const indexA = positionOrder.indexOf(a.position);
+    const indexB = positionOrder.indexOf(b.position);
+    
+    // Handle positions that might appear multiple times (like UTG+1, MP1, etc.)
+    if (indexA === indexB && a.position === b.position) {
+      return a.id - b.id; // Use player ID as a tiebreaker
+    }
+    
+    return indexA - indexB;
+  });
+
   return (
     <TableWrapper>
-      {players.map((player, index) => {
-        const position = getPlayerPosition(index, players.length);
+      {sortedPlayers.map((player, index) => {
+        const position = getPlayerPosition(index, sortedPlayers.length);
         return (
           <PlayerSeat
             key={player.id}
