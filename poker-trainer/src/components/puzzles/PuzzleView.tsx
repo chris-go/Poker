@@ -39,6 +39,14 @@ const PuzzleContainer = styled.div`
     max-height: 100vh;
     justify-content: center;
   }
+  
+  /* For portrait mode, optimize layout for the larger table */
+  @media (orientation: portrait) and (max-width: 767px) {
+    padding: 0 5px 30px; /* Reduce padding at the bottom */
+    height: 100vh;
+    justify-content: flex-start; /* Align content from the top */
+    overflow-y: auto; /* Allow scrolling if needed */
+  }
 `;
 
 // Fixed height container to avoid layout shifts
@@ -53,9 +61,15 @@ const ActionAreaWrapper = styled.div`
   position: relative;
   
   @media (orientation: landscape) {
-    margin-top: 50px; /* Increased from 30px for landscape mode */
+    margin-top: 60px; /* Increased from 50px to avoid overlap with bottom player */
     max-width: 600px;
     height: 120px;
+  }
+  
+  /* For portrait mode (mobile), ensure enough space between table and buttons */
+  @media (orientation: portrait) and (max-width: 767px) {
+    margin-top: 35px; /* Increased from 20px to prevent overlap with bottom player */
+    padding: 0 15px;
   }
 `;
 

@@ -34,6 +34,13 @@ const CardContainer = styled.div<{ isUserCard?: boolean }>`
         ? '0 5px 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.15)' 
         : '0 4px 12px rgba(0, 0, 0, 0.3)'};
   }
+  
+  /* Make cards more compact on mobile devices */
+  @media (orientation: portrait) and (max-width: 767px) {
+    width: ${props => props.isUserCard ? '45px' : '35px'};
+    height: ${props => props.isUserCard ? '67px' : '53px'};
+    font-size: ${props => props.isUserCard ? '14px' : '12px'};
+  }
 `;
 
 const CardBack = styled.div<{ isUserCard?: boolean }>`
@@ -68,6 +75,12 @@ const CardBack = styled.div<{ isUserCard?: boolean }>`
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   }
+  
+  /* Make cards more compact on mobile devices */
+  @media (orientation: portrait) and (max-width: 767px) {
+    width: ${props => props.isUserCard ? '45px' : '35px'};
+    height: ${props => props.isUserCard ? '67px' : '53px'};
+  }
 `;
 
 const TopCorner = styled.div<{ color: string; isUserCard?: boolean }>`
@@ -79,6 +92,12 @@ const TopCorner = styled.div<{ color: string; isUserCard?: boolean }>`
   line-height: 1;
   font-weight: 700;
   text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
+  
+  @media (orientation: portrait) and (max-width: 767px) {
+    font-size: ${props => props.isUserCard ? '12px' : '10px'};
+    top: 2px;
+    left: 2px;
+  }
 `;
 
 const BottomCorner = styled.div<{ color: string; isUserCard?: boolean }>`
@@ -91,6 +110,12 @@ const BottomCorner = styled.div<{ color: string; isUserCard?: boolean }>`
   transform: rotate(180deg);
   font-weight: 700;
   text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
+  
+  @media (orientation: portrait) and (max-width: 767px) {
+    font-size: ${props => props.isUserCard ? '12px' : '10px'};
+    bottom: 2px;
+    right: 2px;
+  }
 `;
 
 const Center = styled.div<{ color: string; isUserCard?: boolean }>`
@@ -101,6 +126,10 @@ const Center = styled.div<{ color: string; isUserCard?: boolean }>`
   color: ${props => props.color};
   font-size: ${props => props.isUserCard ? '26px' : '22px'};
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  @media (orientation: portrait) and (max-width: 767px) {
+    font-size: ${props => props.isUserCard ? '22px' : '18px'};
+  }
 `;
 
 const Card: React.FC<CardProps> = ({ rank, suit, faceDown = false, isUserCard = false }) => {

@@ -23,7 +23,7 @@ const SeatContainer = styled.div<{ isActive?: boolean; isUser?: boolean }>`
   min-width: 110px;
   max-width: 130px;
   text-align: center;
-  z-index: 20;
+  z-index: ${props => props.isUser ? 30 : 20};
   border: ${props => props.isUser 
     ? '2px solid rgba(255, 215, 0, 0.7)' 
     : '1px solid rgba(100, 100, 100, 0.15)'};
@@ -37,9 +37,19 @@ const SeatContainer = styled.div<{ isActive?: boolean; isUser?: boolean }>`
   `}
 
   ${props => props.isUser && `
-    transform: translateY(-20px);
+    transform: translateY(-25px);
     background-color: rgba(39, 39, 39, 0.85);
   `}
+  
+  @media (orientation: portrait) and (max-width: 767px) {
+    padding: 8px;
+    min-width: 100px;
+    max-width: 110px;
+    
+    ${props => props.isUser && `
+      transform: translateY(-20px);
+    `}
+  }
 `;
 
 const PositionBadge = styled.span`
@@ -99,6 +109,12 @@ const FaceDownCard = styled.div`
         transparent 6px
       );
     border-radius: 2px;
+  }
+  
+  /* Make cards more compact on mobile devices */
+  @media (orientation: portrait) and (max-width: 767px) {
+    width: 22px;
+    height: 31px;
   }
 `;
 

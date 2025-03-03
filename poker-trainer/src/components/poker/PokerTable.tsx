@@ -25,7 +25,7 @@ interface MenuIconProps {
 
 const TableWrapper = styled.div`
   position: relative;
-  width: 85%; /* Reduced from 90% to give more space around the table */
+  width: 85%;
   height: 580px;
   margin: 30px auto 20px;
   background: linear-gradient(135deg, #1e6321 0%, #2d8a22 50%, #277714 100%);
@@ -44,9 +44,17 @@ const TableWrapper = styled.div`
   
   /* Add responsive styling for landscape orientation */
   @media (orientation: landscape) {
-    height: min(500px, 80vh);
-    margin: 20px auto 10px;
-    width: 80%; /* Reduced further for landscape orientation */
+    height: min(480px, 75vh); /* Reduced height slightly to create more space for buttons */
+    margin: 20px auto 30px; /* Increased bottom margin */
+    width: 80%;
+  }
+  
+  /* Make portrait mode table a rounded rectangle like landscape mode */
+  @media (orientation: portrait) and (max-width: 767px) {
+    width: 95%;
+    height: min(650px, 80vh); /* Reduced from 700px to prevent top player cutoff */
+    border-radius: 200px; /* Same rounded rectangle shape as landscape mode */
+    margin: 15px auto 30px; /* Adjusted margins to balance spacing */
   }
   
   /* Add subtle background pattern */
@@ -61,7 +69,7 @@ const TableWrapper = styled.div`
       radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 10%),
       radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 15%),
       radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 12%);
-    border-radius: 185px;
+    border-radius: inherit;
     pointer-events: none;
   }
 `;
@@ -122,11 +130,67 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   // Calculate angle evenly distributed around the circle
   const angle = (shiftedIndex / total) * 2 * Math.PI;
   
-  // Adjust the oval shape to be slightly wider than tall
-  const xRadius = 42; // Horizontal radius
-  const yRadius = 38; // Vertical radius
+  // Check if we're on a mobile device with portrait orientation
+  const isPortrait = window.matchMedia("(orientation: portrait) and (max-width: 767px)").matches;
   
-  // Calculate position with a slight inward offset to avoid edge issues
+  // Adjust radius based on orientation
+  let xRadius, yRadius;
+  
+  if (isPortrait) {
+    // For portrait orientation, use rectangle layout similar to landscape
+    // but with more vertical spacing
+    xRadius = 40;
+    yRadius = 42; // Reduced from 48 to prevent top player from being cut off
+    
+    // For portrait, adjust top and bottom player positions for better spacing
+    // Bottom user player should be much higher to avoid overlapping with buttons
+    if (Math.sin(angle) > 0.9) { // User player at bottom (BTN position)
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${48 + yRadius * Math.sin(angle)}%` // Move bottom player up significantly
+      };
+    }
+    
+    // Top players need to be moved down to avoid being cut off
+    if (Math.sin(angle) < -0.8) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%` // Move top players down slightly
+      };
+    }
+  } else {
+    // For landscape and larger screens, use oval positioning with spacing
+    // for players on left and right sides
+    xRadius = 42;
+    yRadius = 38;
+    
+    // Add spacing by adjusting specific player positions based on their angle
+    // Left side players (UTG & BB) need more right offset
+    if (Math.cos(angle) < -0.7 && Math.cos(angle) > -0.95) {
+      return {
+        left: `${50 + (xRadius + 3) * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Right side players (LJ & HJ) need more left offset
+    if (Math.cos(angle) > 0.7 && Math.cos(angle) < 0.95) {
+      return {
+        left: `${50 + (xRadius + 3) * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Bottom user player (BTN) needs to be moved up to avoid overlap with buttons
+    if (Math.sin(angle) > 0.9) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${48 + yRadius * Math.sin(angle)}%` // Move up to avoid overlap with buttons
+      };
+    }
+  }
+  
+  // Calculate position
   const left = `${50 + xRadius * Math.cos(angle)}%`;
   const top = `${50 + yRadius * Math.sin(angle)}%`;
   
