@@ -82,8 +82,8 @@ const MenuIcon = styled.div`
   right: 15px;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
   color: white;
   display: flex;
   flex-direction: column;
@@ -91,17 +91,29 @@ const MenuIcon = styled.div`
   justify-content: center;
   cursor: pointer;
   z-index: 100;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
   }
   
   span {
     display: block;
-    height: 3px;
-    width: 22px;
-    margin: 2px 0;
+    height: 2px;
+    width: 20px;
+    margin: 3px 0;
     background-color: white;
+    border-radius: 1px;
+    transition: all 0.2s ease;
+  }
+  
+  &:hover span {
+    width: 22px;
   }
 `;
 
@@ -109,41 +121,56 @@ const ActionButton = styled.button<{ action: PlayerAction }>`
   padding: 12px 25px;
   font-size: 16px;
   font-weight: bold;
-  border: none;
-  border-radius: 5px;
+  background-color: transparent;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
   flex: 1;
   min-width: 100px;
   position: relative;
   height: 100%;
+  backdrop-filter: blur(5px);
   
   ${props => {
     switch (props.action) {
       case 'FOLD':
         return `
-          background-color: #e74c3c;
-          color: white;
-          &:hover { background-color: #c0392b; }
+          border-color: #e74c3c;
+          color: #e74c3c;
+          &:hover { 
+            background-color: rgba(231, 76, 60, 0.1);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+          }
         `;
       case 'CALL':
       case 'CHECK':
         return `
-          background-color: #2ecc71;
-          color: white;
-          &:hover { background-color: #27ae60; }
+          border-color: #2ecc71;
+          color: #2ecc71;
+          &:hover { 
+            background-color: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
+          }
         `;
       case 'RAISE':
         return `
-          background-color: #2ecc71;
-          color: white;
-          &:hover { background-color: #27ae60; }
+          border-color: #2ecc71;
+          color: #2ecc71;
+          &:hover { 
+            background-color: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
+          }
         `;
       default:
         return `
-          background-color: #7f8c8d;
-          color: white;
-          &:hover { background-color: #2c3e50; }
+          border-color: #7f8c8d;
+          color: #7f8c8d;
+          &:hover { 
+            background-color: rgba(127, 140, 141, 0.1);
+            box-shadow: 0 0 15px rgba(127, 140, 141, 0.3);
+          }
         `;
     }
   }}
@@ -156,7 +183,9 @@ const HotkeyIndicator = styled.span`
   font-size: 10px;
   background-color: rgba(0, 0, 0, 0.3);
   padding: 2px 5px;
-  border-radius: 3px;
+  border-radius: 4px;
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 // Feedback container that overlays the button area exactly
@@ -166,9 +195,9 @@ const FeedbackContainer = styled.div<{ correct: boolean }>`
   left: 0;
   width: 100%;
   height: 50px;
-  background-color: ${props => props.correct ? '#2a4a2a' : '#4a2a2a'};
+  background-color: ${props => props.correct ? 'rgba(42, 74, 42, 0.85)' : 'rgba(74, 42, 42, 0.85)'};
   color: ${props => props.correct ? '#90ee90' : '#ff9090'};
-  border-radius: 5px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,6 +205,9 @@ const FeedbackContainer = styled.div<{ correct: boolean }>`
   font-weight: bold;
   font-size: 20px;
   z-index: 10;
+  backdrop-filter: blur(5px);
+  border: 2px solid ${props => props.correct ? 'rgba(46, 204, 113, 0.5)' : 'rgba(231, 76, 60, 0.5)'};
+  box-shadow: 0 5px 15px ${props => props.correct ? 'rgba(46, 204, 113, 0.3)' : 'rgba(231, 76, 60, 0.3)'};
 `;
 
 // Explanation text for incorrect answers
@@ -183,23 +215,27 @@ const ExplanationContainer = styled.div`
   width: 100%;
   margin-top: 15px;
   color: #ff9090;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 10px 15px;
+  border-radius: 8px;
   text-align: center;
   font-weight: 500;
   font-size: 16px;
+  background-color: rgba(74, 42, 42, 0.3);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(231, 76, 60, 0.3);
 `;
 
 const ErrorMessage = styled.div`
   width: 100%;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
   background-color: rgba(231, 76, 60, 0.2);
   color: #e74c3c;
   text-align: center;
   margin-top: 15px;
-  font-weight: 500;
-  font-size: 16px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const PuzzleView: React.FC<PuzzleViewProps> = ({ 

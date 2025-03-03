@@ -25,23 +25,44 @@ interface MenuIconProps {
 
 const TableWrapper = styled.div`
   position: relative;
-  width: 90%;
+  width: 85%; /* Reduced from 90% to give more space around the table */
   height: 580px;
-  margin: 30px auto 20px; /* Increased top margin to move table down slightly */
-  background-color: #277714;
+  margin: 30px auto 20px;
+  background: linear-gradient(135deg, #1e6321 0%, #2d8a22 50%, #277714 100%);
   border-radius: 200px;
   border: 15px solid #593a28;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 
+    0 20px 30px rgba(0, 0, 0, 0.5),
+    inset 0 5px 20px rgba(255, 255, 255, 0.1),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease;
+  position: relative;
   
   /* Add responsive styling for landscape orientation */
   @media (orientation: landscape) {
     height: min(500px, 80vh);
-    margin: 20px auto 10px; /* Increased top margin in landscape mode as well */
+    margin: 20px auto 10px;
+    width: 80%; /* Reduced further for landscape orientation */
+  }
+  
+  /* Add subtle background pattern */
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 10%),
+      radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 15%),
+      radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 12%);
+    border-radius: 185px;
+    pointer-events: none;
   }
 `;
 
@@ -50,12 +71,15 @@ const TableCenter = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 5; /* Lower z-index than player seats but higher than table background */
 `;
 
 const CommunityCards = styled.div`
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 `;
 
 const PotInfo = styled.div`
@@ -65,6 +89,9 @@ const PotInfo = styled.div`
   border-radius: 20px;
   font-weight: bold;
   margin-bottom: 8px;
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const AccuracyInfo = styled.div`
@@ -74,6 +101,9 @@ const AccuracyInfo = styled.div`
   border-radius: 20px;
   font-weight: bold;
   font-size: 0.9em;
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 // Calculate positions for each player seat evenly around an oval
@@ -92,11 +122,11 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   // Calculate angle evenly distributed around the circle
   const angle = (shiftedIndex / total) * 2 * Math.PI;
   
-  // Oval dimensions (% of container)
-  const xRadius = 53; // Increased to move players outside the table
-  const yRadius = 45; // Increased to move players outside the table
+  // Adjust the oval shape to be slightly wider than tall
+  const xRadius = 42; // Horizontal radius
+  const yRadius = 38; // Vertical radius
   
-  // Calculate position
+  // Calculate position with a slight inward offset to avoid edge issues
   const left = `${50 + xRadius * Math.cos(angle)}%`;
   const top = `${50 + yRadius * Math.sin(angle)}%`;
   

@@ -11,40 +11,54 @@ interface PlayerSeatProps {
 }
 
 const SeatContainer = styled.div<{ isActive?: boolean; isUser?: boolean }>`
-  background-color: ${props => props.isActive ? 'rgba(39, 39, 39, 0.95)' : 'rgba(39, 39, 39, 0.8)'};
-  border-radius: 8px;
-  padding: 8px;
+  background-color: ${props => props.isActive ? 'rgba(39, 39, 39, 0.85)' : 'rgba(39, 39, 39, 0.70)'};
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 10px;
   color: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
-  min-width: 120px;
+  min-width: 110px;
+  max-width: 130px;
   text-align: center;
-  z-index: 10;
-  border: ${props => props.isUser ? '2px solid rgba(255, 255, 0, 0.7)' : '1px solid rgba(120, 120, 120, 0.3)'};
+  z-index: 20;
+  border: ${props => props.isUser 
+    ? '2px solid rgba(255, 215, 0, 0.7)' 
+    : '1px solid rgba(100, 100, 100, 0.15)'};
   
   ${props => props.isActive && `
-    transform: scale(1.03);
-    box-shadow: 0 0 12px rgba(255, 255, 0, 0.5);
+    transform: scale(1.05);
+    box-shadow: 
+      0 0 20px rgba(255, 255, 0, 0.4),
+      0 4px 15px rgba(0, 0, 0, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.1);
   `}
 
   ${props => props.isUser && `
     transform: translateY(-20px);
-    background-color: rgba(39, 39, 39, 0.95);
+    background-color: rgba(39, 39, 39, 0.85);
   `}
 `;
 
 const PositionBadge = styled.span`
-  background-color: #222;
-  padding: 2px 6px;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.8em;
   margin-right: 5px;
   color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const Stack = styled.div`
   font-weight: bold;
-  margin: 5px 0;
+  margin: 8px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
 `;
 
 const PlayerCards = styled.div<{ isUser?: boolean }>`
@@ -62,24 +76,38 @@ const PlayerCards = styled.div<{ isUser?: boolean }>`
 const FaceDownCard = styled.div`
   width: 25px;
   height: 35px;
-  border-radius: 3px;
-  background-color: #1f5ebf;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 5px,
-    rgba(0, 0, 0, 0.1) 5px,
-    rgba(0, 0, 0, 0.1) 10px
-  );
-  border: 1px solid #0d3177;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #273c75 0%, #192a56 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 3px,
+        transparent 3px,
+        transparent 6px
+      );
+    border-radius: 2px;
+  }
 `;
 
 const UserName = styled.span`
   font-weight: bold;
-  color: yellow;
+  color: gold;
   margin-left: 4px;
   font-size: 0.9em;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 `;
 
 const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBlindAmount = 1 }) => {
