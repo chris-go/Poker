@@ -10,13 +10,14 @@ interface PokerTableProps {
   pot: number;
   activePosition?: string;
   bigBlindAmount?: number;
+  onMenuClick?: () => void;
 }
 
 const TableWrapper = styled.div`
   position: relative;
-  width: 800px;
-  height: 400px;
-  margin: 50px auto;
+  width: 90%;
+  height: 580px;
+  margin: 20px auto;
   background-color: #277714;
   border-radius: 200px;
   border: 15px solid #593a28;
@@ -48,11 +49,60 @@ const PotInfo = styled.div`
   font-weight: bold;
 `;
 
+const EngravedText = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+`;
+
+const Subtitle = styled.p`
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+  text-align: center;
+  font-style: italic;
+`;
+
+const MenuIcon = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  span {
+    display: block;
+    height: 3px;
+    width: 24px;
+    background-color: white;
+    border-radius: 3px;
+    margin: 2px 0;
+  }
+`;
+
 // Calculate positions for each player seat evenly around an oval
-// Rotate positions so the user's position is at bottom right (approx 4:30-5 o'clock position)
+// Position players slightly outside the table
 const getPlayerPosition = (index: number, total: number, userIndex: number): { top: string; left: string } => {
-  // Calculate the rotation offset to put user at bottom right (135 degrees)
-  const userAngle = 3 * Math.PI / 4; // 135 degrees - bottom right (4:30 position)
+  // Calculate the rotation offset to put user at bottom center (180 degrees)
+  const userAngle = Math.PI; // 180 degrees - bottom center (6 o'clock position)
   const idealUserIndex = total * (userAngle / (2 * Math.PI));
   
   // Calculate how many positions to shift everyone
@@ -65,8 +115,8 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   const angle = (shiftedIndex / total) * 2 * Math.PI;
   
   // Oval dimensions (% of container)
-  const xRadius = 45;
-  const yRadius = 40;
+  const xRadius = 53; // Increased to move players outside the table
+  const yRadius = 45; // Increased to move players outside the table
   
   // Calculate position
   const left = `${50 + xRadius * Math.cos(angle)}%`;
@@ -80,7 +130,8 @@ const PokerTable: React.FC<PokerTableProps> = ({
   communityCards, 
   pot, 
   activePosition,
-  bigBlindAmount = 1 
+  bigBlindAmount = 1,
+  onMenuClick
 }) => {
   // Find the user player
   const userPlayer = players.find(player => player.isUser);
@@ -107,6 +158,17 @@ const PokerTable: React.FC<PokerTableProps> = ({
 
   return (
     <TableWrapper>
+      <MenuIcon onClick={onMenuClick}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </MenuIcon>
+      
+      <EngravedText>
+        Poker Trainer
+        <Subtitle>Practice your decision-making skills</Subtitle>
+      </EngravedText>
+      
       {sortedPlayers.map((player, index) => {
         const position = getPlayerPosition(index, sortedPlayers.length, userIndex);
         

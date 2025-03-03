@@ -10,19 +10,26 @@ interface PlayerSeatProps {
   bigBlindAmount?: number;
 }
 
-const SeatContainer = styled.div<{ isActive?: boolean }>`
-  background-color: ${props => props.isActive ? '#4a6fa5' : '#333'};
-  border-radius: 10px;
-  padding: 10px;
+const SeatContainer = styled.div<{ isActive?: boolean; isUser?: boolean }>`
+  background-color: ${props => props.isActive ? 'rgba(39, 39, 39, 0.95)' : 'rgba(39, 39, 39, 0.8)'};
+  border-radius: 8px;
+  padding: 8px;
   color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  min-width: 100px;
+  min-width: 120px;
   text-align: center;
   z-index: 10;
+  border: ${props => props.isUser ? '2px solid rgba(255, 255, 0, 0.7)' : '1px solid rgba(120, 120, 120, 0.3)'};
+  
   ${props => props.isActive && `
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(255, 255, 0, 0.5);
+  `}
+
+  ${props => props.isUser && `
+    transform: translateY(-20px);
+    background-color: rgba(39, 39, 39, 0.95);
   `}
 `;
 
@@ -32,6 +39,7 @@ const PositionBadge = styled.span`
   border-radius: 4px;
   font-size: 0.8em;
   margin-right: 5px;
+  color: #ffffff;
 `;
 
 const Stack = styled.div`
@@ -39,11 +47,16 @@ const Stack = styled.div`
   margin: 5px 0;
 `;
 
-const PlayerCards = styled.div`
+const PlayerCards = styled.div<{ isUser?: boolean }>`
   display: flex;
   justify-content: center;
   gap: 5px;
   margin-top: 8px;
+  
+  ${props => props.isUser && `
+    position: relative;
+    top: 5px;
+  `}
 `;
 
 const FaceDownCard = styled.div`
@@ -62,20 +75,27 @@ const FaceDownCard = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 `;
 
+const UserName = styled.span`
+  font-weight: bold;
+  color: yellow;
+  margin-left: 4px;
+  font-size: 0.9em;
+`;
+
 const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBlindAmount = 1 }) => {
   return (
-    <SeatContainer style={style} isActive={isActive}>
+    <SeatContainer style={style} isActive={isActive} isUser={player.isUser}>
       <div>
         <PositionBadge>{player.position}</PositionBadge>
-        {player.isUser && '👤'}
+        {player.isUser && <UserName>👤 YOU</UserName>}
       </div>
       <Stack>{player.stack / bigBlindAmount} BB</Stack>
       
-      <PlayerCards>
+      <PlayerCards isUser={player.isUser}>
         {player.isUser && player.cards ? (
           <>
-            <Card rank={player.cards[0].rank} suit={player.cards[0].suit} />
-            <Card rank={player.cards[1].rank} suit={player.cards[1].suit} />
+            <Card rank={player.cards[0].rank} suit={player.cards[0].suit} isUserCard={true} />
+            <Card rank={player.cards[1].rank} suit={player.cards[1].suit} isUserCard={true} />
           </>
         ) : (
           <>

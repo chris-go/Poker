@@ -7,31 +7,19 @@ import { createSamplePuzzle } from './utils/pokerUtils';
 
 const AppContainer = styled.div`
   font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
   position: relative;
-`;
-
-const Header = styled.header`
-  text-align: center;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.h1`
-  color: #ffffff;
-  margin-bottom: 10px;
-`;
-
-const Subtitle = styled.p`
-  color: #b0b0b0;
-  font-size: 18px;
+  background-color: #1a1a1a;
+  overflow: hidden;
 `;
 
 const MainContent = styled.main`
-  background-color: #2a2a2a;
-  border-radius: 10px;
-  padding: 20px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 `;
 
@@ -39,59 +27,33 @@ const Stats = styled.div`
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 20px;
+  padding: 15px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(42, 42, 42, 0.9);
 `;
 
 const StatBox = styled.div`
   background-color: #333333;
   border-radius: 5px;
-  padding: 15px;
+  padding: 10px;
   text-align: center;
-  min-width: 120px;
+  min-width: 100px;
   color: #e0e0e0;
 `;
 
 const StatLabel = styled.div`
   color: #7f8c8d;
-  font-size: 14px;
-  margin-bottom: 5px;
+  font-size: 12px;
+  margin-bottom: 3px;
 `;
 
 const StatValue = styled.div`
-  color: #2c3e50;
-  font-size: 20px;
+  color: #ecf0f1;
+  font-size: 18px;
   font-weight: bold;
-`;
-
-const MenuIcon = styled.div`
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #444;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 99;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  
-  &:hover {
-    background-color: #555;
-  }
-  
-  span {
-    display: block;
-    height: 3px;
-    width: 24px;
-    background-color: white;
-    border-radius: 3px;
-    margin: 2px 0;
-  }
 `;
 
 const SettingsPanel = styled.div<{ isOpen: boolean }>`
@@ -180,53 +142,48 @@ const App: React.FC = () => {
   
   return (
     <AppContainer>
-      <MenuIcon onClick={toggleSettingsPanel}>
-        <span></span>
-        <span></span>
-        <span></span>
-      </MenuIcon>
-      
       <Overlay isOpen={settingsPanelOpen} onClick={() => setSettingsPanelOpen(false)} />
       
       <SettingsPanel isOpen={settingsPanelOpen}>
         <GameSettings onSettingsChange={handleSettingsChange} initialSettings={settings} />
       </SettingsPanel>
       
-      <Header>
-        <Title>Poker Trainer</Title>
-        <Subtitle>Practice your decision-making skills in different poker scenarios</Subtitle>
-      </Header>
-      
       <MainContent>
         {puzzle ? (
-          <PuzzleView puzzle={puzzle} onActionSelected={handleActionSelected} />
+          <>
+            <PuzzleView 
+              puzzle={puzzle} 
+              onActionSelected={handleActionSelected} 
+              onMenuClick={toggleSettingsPanel} 
+            />
+            
+            {stats.total > 0 && (
+              <Stats>
+                <StatBox>
+                  <StatLabel>Correct</StatLabel>
+                  <StatValue>{stats.correct}</StatValue>
+                </StatBox>
+                <StatBox>
+                  <StatLabel>Incorrect</StatLabel>
+                  <StatValue>{stats.incorrect}</StatValue>
+                </StatBox>
+                <StatBox>
+                  <StatLabel>Total</StatLabel>
+                  <StatValue>{stats.total}</StatValue>
+                </StatBox>
+                <StatBox>
+                  <StatLabel>Accuracy</StatLabel>
+                  <StatValue>{accuracy}%</StatValue>
+                </StatBox>
+              </Stats>
+            )}
+          </>
         ) : (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'white' }}>
             Loading puzzle...
           </div>
         )}
       </MainContent>
-      
-      {stats.total > 0 && (
-        <Stats>
-          <StatBox>
-            <StatLabel>Correct</StatLabel>
-            <StatValue>{stats.correct}</StatValue>
-          </StatBox>
-          <StatBox>
-            <StatLabel>Incorrect</StatLabel>
-            <StatValue>{stats.incorrect}</StatValue>
-          </StatBox>
-          <StatBox>
-            <StatLabel>Total</StatLabel>
-            <StatValue>{stats.total}</StatValue>
-          </StatBox>
-          <StatBox>
-            <StatLabel>Accuracy</StatLabel>
-            <StatValue>{accuracy}%</StatValue>
-          </StatBox>
-        </Stats>
-      )}
     </AppContainer>
   );
 };

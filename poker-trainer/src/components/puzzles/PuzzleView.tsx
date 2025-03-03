@@ -6,31 +6,35 @@ import { PokerPuzzle, PlayerAction } from '../../types/poker';
 interface PuzzleViewProps {
   puzzle: PokerPuzzle;
   onActionSelected: (action: PlayerAction) => void;
+  onMenuClick?: () => void;
 }
 
 const PuzzleContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  height: 100%;
+  overflow: auto;
+  padding: 0 5px;
 `;
 
 const ActionPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 10px;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
+  padding: 0 20px;
 `;
 
 const SituationDescription = styled.div`
-  background-color: #333333;
+  background-color: rgba(51, 51, 51, 0.8);
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: 12px;
+  margin-bottom: 15px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   width: 100%;
@@ -103,7 +107,7 @@ const FeedbackContainer = styled.div<{ correct: boolean }>`
   font-weight: bold;
 `;
 
-const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected }) => {
+const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected, onMenuClick }) => {
   const [selectedAction, setSelectedAction] = useState<PlayerAction | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   
@@ -125,6 +129,7 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected }) => 
         pot={puzzle.pot}
         activePosition={userPlayer?.position}
         bigBlindAmount={puzzle.blinds.big}
+        onMenuClick={onMenuClick}
       />
       
       <ActionPanel>
