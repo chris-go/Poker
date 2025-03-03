@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import PokerTable from '../poker/PokerTable';
 import { PokerPuzzle, PlayerAction } from '../../types/poker';
+// We no longer need this import
 // Only import StatLabel, define our own StatValue
-import { StatLabel } from '../../App';
+// import { StatLabel } from '../../App';
 
 interface PuzzleViewProps {
   puzzle: PokerPuzzle;
@@ -59,37 +60,37 @@ const ActionButtons = styled.div`
 `;
 
 // Stats box positioned at top left - more compact with grayed-out text
-const StatsContainer = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  z-index: 100;
-  background-color: rgba(42, 42, 42, 0.85);
-  border-radius: 8px;
-  padding: 8px 10px;
-  width: 150px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-`;
+// const StatsContainer = styled.div`
+//   position: absolute;
+//   top: 15px;
+//   left: 15px;
+//   z-index: 100;
+//   background-color: rgba(42, 42, 42, 0.85);
+//   border-radius: 8px;
+//   padding: 8px 10px;
+//   width: 150px;
+//   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+// `;
 
-const StatsRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 0.9em;
-  color: rgba(224, 224, 224, 0.7); /* Grayed out text */
-`;
+// const StatsRow = styled.div`
+//   display: flex;
+//   justify-content: space-between;
+//   margin-bottom: 4px;
+//   font-size: 0.9em;
+//   color: rgba(224, 224, 224, 0.7); /* Grayed out text */
+// `;
 
-const GameModeText = styled.div`
-  font-size: 15px;
-  font-weight: bold;
-  color: rgba(224, 224, 224, 0.8);
-  margin-bottom: 6px;
-  text-align: center;
-`;
+// const GameModeText = styled.div`
+//   font-size: 15px;
+//   font-weight: bold;
+//   color: rgba(224, 224, 224, 0.8);
+//   margin-bottom: 6px;
+//   text-align: center;
+// `;
 
-const StatValue = styled.div`
-  font-weight: bold;
-`;
+// const StatValue = styled.div`
+//   font-weight: bold;
+// `;
 
 const ActionButton = styled.button<{ action: PlayerAction }>`
   padding: 12px 25px;
@@ -160,11 +161,11 @@ const FeedbackContainer = styled.div<{ correct: boolean }>`
   z-index: 10;
 `;
 
-// Menu icon moved from PokerTable to be next to the accuracy tracking box
+// Menu icon positioned at top right
 const MenuIcon = styled.div`
   position: absolute;
   top: 15px;
-  left: 170px; /* Positioned to the right of stats box */
+  right: 15px; /* Position at top right instead */
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -259,29 +260,7 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({
   
   return (
     <PuzzleContainer>
-      <StatsContainer>
-        <GameModeText>
-          {puzzle.gameType === 'CASH' ? 'Cash Game' : 'Tournament'}
-        </GameModeText>
-        <StatsRow>
-          <StatLabel>Correct</StatLabel>
-          <StatValue>{stats.correct}</StatValue>
-        </StatsRow>
-        <StatsRow>
-          <StatLabel>Incorrect</StatLabel>
-          <StatValue>{stats.incorrect}</StatValue>
-        </StatsRow>
-        <StatsRow>
-          <StatLabel>Total</StatLabel>
-          <StatValue>{stats.total}</StatValue>
-        </StatsRow>
-        <StatsRow>
-          <StatLabel>Accuracy</StatLabel>
-          <StatValue>{accuracy}%</StatValue>
-        </StatsRow>
-      </StatsContainer>
-      
-      {/* Menu icon moved from PokerTable component */}
+      {/* Menu icon positioned at top right */}
       <MenuIcon onClick={onMenuClick}>
         <span></span>
         <span></span>
@@ -294,6 +273,8 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({
         pot={puzzle.pot}
         activePosition={userPlayer?.position}
         bigBlindAmount={puzzle.blinds.big}
+        stats={stats}
+        accuracy={accuracy}
       />
       
       <ActionPanel>

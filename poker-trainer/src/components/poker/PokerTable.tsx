@@ -10,6 +10,12 @@ interface PokerTableProps {
   pot: number;
   activePosition?: string;
   bigBlindAmount?: number;
+  stats?: {
+    correct: number;
+    incorrect: number;
+    total: number;
+  };
+  accuracy?: number;
 }
 
 // Define props for the MenuIcon styled component
@@ -58,6 +64,16 @@ const PotInfo = styled.div`
   padding: 5px 15px;
   border-radius: 20px;
   font-weight: bold;
+  margin-bottom: 8px;
+`;
+
+const AccuracyInfo = styled.div`
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
 `;
 
 // Calculate positions for each player seat evenly around an oval
@@ -92,7 +108,9 @@ const PokerTable: React.FC<PokerTableProps> = ({
   communityCards, 
   pot, 
   activePosition,
-  bigBlindAmount = 1
+  bigBlindAmount = 1,
+  stats,
+  accuracy
 }) => {
   // Find the user player
   const userPlayer = players.find(player => player.isUser);
@@ -145,6 +163,11 @@ const PokerTable: React.FC<PokerTableProps> = ({
           ))}
         </CommunityCards>
         <PotInfo>{pot / bigBlindAmount} BB</PotInfo>
+        {stats && (
+          <AccuracyInfo>
+            {stats.correct}/{stats.total} {accuracy}%
+          </AccuracyInfo>
+        )}
       </TableCenter>
     </TableWrapper>
   );
