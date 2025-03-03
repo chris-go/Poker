@@ -26,6 +26,13 @@ const TableWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: all 0.3s ease;
+  
+  /* Add responsive styling for landscape orientation */
+  @media (orientation: landscape) {
+    height: min(500px, 80vh);
+    margin: 10px auto;
+  }
 `;
 
 const TableCenter = styled.div`
@@ -99,10 +106,10 @@ const MenuIcon = styled.div`
 `;
 
 // Calculate positions for each player seat evenly around an oval
-// Position players slightly outside the table
+// Position players slightly outside the table, with user at top
 const getPlayerPosition = (index: number, total: number, userIndex: number): { top: string; left: string } => {
-  // Calculate the rotation offset to put user at bottom center (180 degrees)
-  const userAngle = Math.PI; // 180 degrees - bottom center (6 o'clock position)
+  // Calculate the rotation offset to put user at top center (90 degrees)
+  const userAngle = Math.PI / 2; // 90 degrees - top center (12 o'clock position)
   const idealUserIndex = total * (userAngle / (2 * Math.PI));
   
   // Calculate how many positions to shift everyone
@@ -191,7 +198,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
       <TableCenter>
         <CommunityCards>
           {communityCards.map((card, index) => (
-            <Card key={index} rank={card.rank} suit={card.suit} />
+            <Card key={index} rank={card.rank} suit={card.suit} faceDown={true} />
           ))}
         </CommunityCards>
         <PotInfo>{pot / bigBlindAmount} BB</PotInfo>

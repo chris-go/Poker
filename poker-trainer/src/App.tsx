@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import GameSettings from './components/settings/GameSettings';
 import PuzzleView from './components/puzzles/PuzzleView';
@@ -94,18 +94,8 @@ const App: React.FC = () => {
     total: 0,
   });
   
-  // Generate a puzzle when the component mounts
-  useEffect(() => {
-    generateNewPuzzle();
-  }, []);
-  
-  const handleSettingsChange = (newSettings: GameSettingsType) => {
-    setSettings(newSettings);
-    generateNewPuzzle(newSettings);
-    setSettingsPanelOpen(false); // Close the settings panel after applying
-  };
-  
-  const generateNewPuzzle = (settingsToUse: GameSettingsType = settings) => {
+  // Wrap generateNewPuzzle in useCallback to maintain reference between renders
+  const generateNewPuzzle = useCallback((settingsToUse: GameSettingsType = settings) => {
     const newPuzzle = createSamplePuzzle(
       settingsToUse.gameType,
       settingsToUse.playerCount,
@@ -113,6 +103,17 @@ const App: React.FC = () => {
       settingsToUse.bigBlinds
     );
     setPuzzle(newPuzzle);
+  }, [settings]);
+  
+  // Generate a puzzle when the component mounts or when generateNewPuzzle changes
+  useEffect(() => {
+    generateNewPuzzle();
+  }, [generateNewPuzzle]);
+  
+  const handleSettingsChange = (newSettings: GameSettingsType) => {
+    setSettings(newSettings);
+    generateNewPuzzle(newSettings);
+    setSettingsPanelOpen(false); // Close the settings panel after applying
   };
   
   const handleActionSelected = (action: PlayerAction) => {
