@@ -2,11 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import PokerTable from '../poker/PokerTable';
 import { PokerPuzzle, PlayerAction } from '../../types/poker';
+// Only import StatLabel, define our own StatValue
+import { StatLabel } from '../../App';
 
 interface PuzzleViewProps {
   puzzle: PokerPuzzle;
   onActionSelected: (action: PlayerAction) => void;
   onMenuClick?: () => void;
+  stats: {
+    correct: number;
+    incorrect: number;
+    total: number;
+  };
+  accuracy: number;
 }
 
 const PuzzleContainer = styled.div`
@@ -16,6 +24,7 @@ const PuzzleContainer = styled.div`
   height: 100%;
   overflow: auto;
   padding: 0 5px;
+  position: relative;
   
   /* Add padding for horizontal orientation (landscape) */
   @media (orientation: landscape) {
@@ -29,28 +38,16 @@ const ActionPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 40px; /* Increased to move buttons down more */
   width: 100%;
   max-width: 800px;
   padding: 0 20px;
+  position: relative; /* For absolute positioning of feedback */
   
   @media (orientation: landscape) {
-    margin-top: 5px;
+    margin-top: 30px; /* Increased in landscape mode too */
     max-width: 600px;
   }
-`;
-
-const SituationDescription = styled.div`
-  background-color: rgba(51, 51, 51, 0.8);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 14px;
-  line-height: 1.5;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  color: #e0e0e0;
 `;
 
 const ActionButtons = styled.div`
@@ -59,6 +56,39 @@ const ActionButtons = styled.div`
   gap: 15px;
   width: 100%;
   flex-wrap: wrap;
+`;
+
+// Stats box positioned at top left - more compact with grayed-out text
+const StatsContainer = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 100;
+  background-color: rgba(42, 42, 42, 0.85);
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 150px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+`;
+
+const StatsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  color: rgba(224, 224, 224, 0.7); /* Grayed out text */
+`;
+
+const GameModeText = styled.div`
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(224, 224, 224, 0.8);
+  margin-bottom: 6px;
+  text-align: center;
+`;
+
+const StatValue = styled.div`
+  font-weight: bold;
 `;
 
 const ActionButton = styled.button<{ action: PlayerAction }>`
@@ -114,18 +144,59 @@ const HotkeyIndicator = styled.span`
   border-radius: 3px;
 `;
 
+// Updated FeedbackContainer to not cause layout shifts
 const FeedbackContainer = styled.div<{ correct: boolean }>`
+  position: absolute;
+  top: 100%; /* Position below the buttons */
+  left: 20px;
+  right: 20px;
+  margin-top: 10px;
   background-color: ${props => props.correct ? '#2a4a2a' : '#4a2a2a'};
   color: ${props => props.correct ? '#90ee90' : '#ff9090'};
   padding: 15px;
   border-radius: 5px;
-  margin-top: 20px;
-  width: 100%;
   text-align: center;
   font-weight: bold;
+  z-index: 10;
 `;
 
-const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected, onMenuClick }) => {
+// Menu icon moved from PokerTable to be next to the accuracy tracking box
+const MenuIcon = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 170px; /* Positioned to the right of stats box */
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  span {
+    display: block;
+    height: 3px;
+    width: 22px;
+    margin: 2px 0;
+    background-color: white;
+  }
+`;
+
+const PuzzleView: React.FC<PuzzleViewProps> = ({ 
+  puzzle, 
+  onActionSelected, 
+  onMenuClick, 
+  stats, 
+  accuracy 
+}) => {
   const [selectedAction, setSelectedAction] = useState<PlayerAction | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   
@@ -157,6 +228,11 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected, onMen
     const handleKeyDown = (e: KeyboardEvent) => {
       if (showFeedback) return; // Don't process hotkeys while showing feedback
       
+      // Only trigger hotkeys if no modifier keys are pressed
+      if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
+        return;
+      }
+      
       switch (e.key.toLowerCase()) {
         case 'f':
           handleActionClick('FOLD');
@@ -183,22 +259,44 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected, onMen
   
   return (
     <PuzzleContainer>
+      <StatsContainer>
+        <GameModeText>
+          {puzzle.gameType === 'CASH' ? 'Cash Game' : 'Tournament'}
+        </GameModeText>
+        <StatsRow>
+          <StatLabel>Correct</StatLabel>
+          <StatValue>{stats.correct}</StatValue>
+        </StatsRow>
+        <StatsRow>
+          <StatLabel>Incorrect</StatLabel>
+          <StatValue>{stats.incorrect}</StatValue>
+        </StatsRow>
+        <StatsRow>
+          <StatLabel>Total</StatLabel>
+          <StatValue>{stats.total}</StatValue>
+        </StatsRow>
+        <StatsRow>
+          <StatLabel>Accuracy</StatLabel>
+          <StatValue>{accuracy}%</StatValue>
+        </StatsRow>
+      </StatsContainer>
+      
+      {/* Menu icon moved from PokerTable component */}
+      <MenuIcon onClick={onMenuClick}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </MenuIcon>
+      
       <PokerTable 
         players={puzzle.players}
         communityCards={puzzle.communityCards}
         pot={puzzle.pot}
         activePosition={userPlayer?.position}
         bigBlindAmount={puzzle.blinds.big}
-        onMenuClick={onMenuClick}
       />
       
       <ActionPanel>
-        <SituationDescription>
-          {puzzle.gameType === 'CASH' ? 'Cash Game' : 'Tournament'} - 
-          Pot: {puzzle.pot/puzzle.blinds.big} BB - 
-          Your Stack: {userPlayer?.stack ? (userPlayer.stack/puzzle.blinds.big) : 0} BB
-        </SituationDescription>
-        
         <ActionButtons>
           <ActionButton action="FOLD" onClick={() => handleActionClick('FOLD')}>
             Fold

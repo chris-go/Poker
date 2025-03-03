@@ -23,39 +23,6 @@ const MainContent = styled.main`
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 `;
 
-const Stats = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 15px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(42, 42, 42, 0.9);
-`;
-
-const StatBox = styled.div`
-  background-color: #333333;
-  border-radius: 5px;
-  padding: 10px;
-  text-align: center;
-  min-width: 100px;
-  color: #e0e0e0;
-`;
-
-const StatLabel = styled.div`
-  color: #7f8c8d;
-  font-size: 12px;
-  margin-bottom: 3px;
-`;
-
-const StatValue = styled.div`
-  color: #ecf0f1;
-  font-size: 18px;
-  font-weight: bold;
-`;
-
 const SettingsPanel = styled.div<{ isOpen: boolean }>`
   position: fixed;
   top: 0;
@@ -76,6 +43,28 @@ const Overlay = styled.div<{ isOpen: boolean }>`
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 98;
   display: ${props => props.isOpen ? 'block' : 'none'};
+`;
+
+// Export these style components for use in PuzzleView
+export const StatBox = styled.div`
+  background-color: #333333;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+  min-width: 75px;
+  color: #e0e0e0;
+`;
+
+export const StatLabel = styled.div`
+  color: #7f8c8d;
+  font-size: 12px;
+  margin-bottom: 3px;
+`;
+
+export const StatValue = styled.div`
+  color: #ecf0f1;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const App: React.FC = () => {
@@ -151,34 +140,13 @@ const App: React.FC = () => {
       
       <MainContent>
         {puzzle ? (
-          <>
-            <PuzzleView 
-              puzzle={puzzle} 
-              onActionSelected={handleActionSelected} 
-              onMenuClick={toggleSettingsPanel} 
-            />
-            
-            {stats.total > 0 && (
-              <Stats>
-                <StatBox>
-                  <StatLabel>Correct</StatLabel>
-                  <StatValue>{stats.correct}</StatValue>
-                </StatBox>
-                <StatBox>
-                  <StatLabel>Incorrect</StatLabel>
-                  <StatValue>{stats.incorrect}</StatValue>
-                </StatBox>
-                <StatBox>
-                  <StatLabel>Total</StatLabel>
-                  <StatValue>{stats.total}</StatValue>
-                </StatBox>
-                <StatBox>
-                  <StatLabel>Accuracy</StatLabel>
-                  <StatValue>{accuracy}%</StatValue>
-                </StatBox>
-              </Stats>
-            )}
-          </>
+          <PuzzleView 
+            puzzle={puzzle} 
+            onActionSelected={handleActionSelected} 
+            onMenuClick={toggleSettingsPanel}
+            stats={stats}
+            accuracy={accuracy} 
+          />
         ) : (
           <div style={{ textAlign: 'center', padding: '40px', color: 'white' }}>
             Loading puzzle...

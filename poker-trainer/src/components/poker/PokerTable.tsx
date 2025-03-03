@@ -10,14 +10,18 @@ interface PokerTableProps {
   pot: number;
   activePosition?: string;
   bigBlindAmount?: number;
-  onMenuClick?: () => void;
+}
+
+// Define props for the MenuIcon styled component
+interface MenuIconProps {
+  // No props needed anymore
 }
 
 const TableWrapper = styled.div`
   position: relative;
   width: 90%;
   height: 580px;
-  margin: 20px auto;
+  margin: 30px auto 20px; /* Increased top margin to move table down slightly */
   background-color: #277714;
   border-radius: 200px;
   border: 15px solid #593a28;
@@ -31,7 +35,7 @@ const TableWrapper = styled.div`
   /* Add responsive styling for landscape orientation */
   @media (orientation: landscape) {
     height: min(500px, 80vh);
-    margin: 10px auto;
+    margin: 20px auto 10px; /* Increased top margin in landscape mode as well */
   }
 `;
 
@@ -54,55 +58,6 @@ const PotInfo = styled.div`
   padding: 5px 15px;
   border-radius: 20px;
   font-weight: bold;
-`;
-
-const EngravedText = styled.div`
-  color: rgba(255, 255, 255, 0.7);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 20px;
-  font-family: 'Georgia', serif;
-  letter-spacing: 2px;
-`;
-
-const Subtitle = styled.p`
-  color: rgba(255, 255, 255, 0.6);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  font-size: 1rem;
-  text-align: center;
-  font-style: italic;
-`;
-
-const MenuIcon = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 99;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-  
-  span {
-    display: block;
-    height: 3px;
-    width: 24px;
-    background-color: white;
-    border-radius: 3px;
-    margin: 2px 0;
-  }
 `;
 
 // Calculate positions for each player seat evenly around an oval
@@ -137,8 +92,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
   communityCards, 
   pot, 
   activePosition,
-  bigBlindAmount = 1,
-  onMenuClick
+  bigBlindAmount = 1
 }) => {
   // Find the user player
   const userPlayer = players.find(player => player.isUser);
@@ -165,17 +119,6 @@ const PokerTable: React.FC<PokerTableProps> = ({
 
   return (
     <TableWrapper>
-      <MenuIcon onClick={onMenuClick}>
-        <span></span>
-        <span></span>
-        <span></span>
-      </MenuIcon>
-      
-      <EngravedText>
-        Poker Trainer
-        <Subtitle>Practice your decision-making skills</Subtitle>
-      </EngravedText>
-      
       {sortedPlayers.map((player, index) => {
         const position = getPlayerPosition(index, sortedPlayers.length, userIndex);
         
