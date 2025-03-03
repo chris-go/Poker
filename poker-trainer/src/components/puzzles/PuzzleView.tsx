@@ -25,15 +25,16 @@ const ActionPanel = styled.div`
 `;
 
 const SituationDescription = styled.div`
-  background-color: #f5f5f5;
+  background-color: #333333;
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
   text-align: center;
   font-size: 16px;
   line-height: 1.5;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   width: 100%;
+  color: #e0e0e0;
 `;
 
 const ActionButtons = styled.div`
@@ -92,8 +93,8 @@ const ActionButton = styled.button<{ action: PlayerAction }>`
 `;
 
 const FeedbackContainer = styled.div<{ correct: boolean }>`
-  background-color: ${props => props.correct ? '#dff0d8' : '#f2dede'};
-  color: ${props => props.correct ? '#3c763d' : '#a94442'};
+  background-color: ${props => props.correct ? '#2a4a2a' : '#4a2a2a'};
+  color: ${props => props.correct ? '#90ee90' : '#ff9090'};
   padding: 15px;
   border-radius: 5px;
   margin-top: 20px;

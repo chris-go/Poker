@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Player, Card as CardType } from '../../types/poker';
+import { Player, Card as CardType, Position } from '../../types/poker';
 import PlayerSeat from './PlayerSeat';
 import Card from './Card';
 
@@ -48,24 +48,29 @@ const PotInfo = styled.div`
   font-weight: bold;
 `;
 
-// Calculate positions for each player seat around an oval
-const getPlayerPosition = (index: number, total: number): { top: string; left: string } => {
-  if (total <= 1) {
-    return { top: '50%', left: '50%' };
-  }
-
-  // Calculate angle based on index and total players
-  // Start at the bottom center and move clockwise
-  const angleOffset = Math.PI; // start at bottom
-  const angle = angleOffset + (index / total) * 2 * Math.PI;
+// Calculate positions for each player seat evenly around an oval
+// Rotate positions so the user's position is at bottom right (approx 4:30-5 o'clock position)
+const getPlayerPosition = (index: number, total: number, userIndex: number): { top: string; left: string } => {
+  // Calculate the rotation offset to put user at bottom right (135 degrees)
+  const userAngle = 3 * Math.PI / 4; // 135 degrees - bottom right (4:30 position)
+  const idealUserIndex = total * (userAngle / (2 * Math.PI));
+  
+  // Calculate how many positions to shift everyone
+  let shiftAmount = (idealUserIndex - userIndex + total) % total;
+  
+  // Apply the shift to the current index
+  const shiftedIndex = (index + shiftAmount) % total;
+  
+  // Calculate angle evenly distributed around the circle
+  const angle = (shiftedIndex / total) * 2 * Math.PI;
   
   // Oval dimensions (% of container)
-  const xRadius = 48;
+  const xRadius = 45;
   const yRadius = 40;
   
   // Calculate position
-  const left = `${50 + xRadius * Math.sin(angle)}%`;
-  const top = `${50 + yRadius * Math.cos(angle)}%`;
+  const left = `${50 + xRadius * Math.cos(angle)}%`;
+  const top = `${50 + yRadius * Math.sin(angle)}%`;
   
   return { top, left };
 };
@@ -80,15 +85,10 @@ const PokerTable: React.FC<PokerTableProps> = ({
   // Find the user player
   const userPlayer = players.find(player => player.isUser);
   
-  // Sort players to ensure they are in the right order
-  // For display purposes, put the user at the bottom (6 o'clock position)
+  // Sort players by their position according to the correct order
   const sortedPlayers = [...players].sort((a, b) => {
-    // If one of the players is the user, place them last (bottom of the table)
-    if (a.isUser) return 1;
-    if (b.isUser) return -1;
-    
-    // Define the clockwise order of positions - order of action with SB and BB last
-    const positionOrder = ['UTG', 'UTG+1', 'MP', 'MP+1', 'MP+2', 'MP+3', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
+    // Define the standard order of positions
+    const positionOrder = ['UTG', 'UTG+1', 'UTG+2', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
     
     // Find the index of each position in the order
     const indexA = positionOrder.indexOf(a.position);
@@ -102,14 +102,13 @@ const PokerTable: React.FC<PokerTableProps> = ({
     return indexA - indexB;
   });
 
+  // Find the index of the user in the sorted players array
+  const userIndex = sortedPlayers.findIndex(player => player.isUser);
+
   return (
     <TableWrapper>
       {sortedPlayers.map((player, index) => {
-        // Calculate position - the user should always be at the bottom
-        const calculatedIndex = player.isUser 
-          ? sortedPlayers.length - 1 // Always put user at the bottom
-          : index;
-        const position = getPlayerPosition(calculatedIndex, sortedPlayers.length);
+        const position = getPlayerPosition(index, sortedPlayers.length, userIndex);
         
         return (
           <PlayerSeat

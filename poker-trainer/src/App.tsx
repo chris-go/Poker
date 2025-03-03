@@ -63,52 +63,46 @@ const StatValue = styled.div`
   font-weight: bold;
 `;
 
-const HamburgerButton = styled.button`
-  position: absolute;
+const MenuIcon = styled.div`
+  position: fixed;
   top: 20px;
-  left: 20px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 100;
+  right: 20px;
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  background-color: #444;
+  color: white;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  padding: 5px;
-  border-radius: 5px;
-  background-color: #f8f9fa;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   
   &:hover {
-    background-color: #e9ecef;
+    background-color: #555;
   }
   
   span {
     display: block;
     height: 3px;
-    width: 100%;
-    background-color: #2c3e50;
+    width: 24px;
+    background-color: white;
     border-radius: 3px;
-    transition: all 0.3s ease;
+    margin: 2px 0;
   }
 `;
 
 const SettingsPanel = styled.div<{ isOpen: boolean }>`
   position: fixed;
   top: 0;
-  left: 0;
-  width: 350px;
-  height: 100vh;
-  background-color: white;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  transform: translateX(${props => props.isOpen ? '0' : '-100%'});
-  transition: transform 0.3s ease;
-  z-index: 99;
-  overflow-y: auto;
-  padding: 60px 20px 20px;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 98;
+  display: ${props => props.isOpen ? 'block' : 'none'};
 `;
 
 const Overlay = styled.div<{ isOpen: boolean }>`
@@ -186,11 +180,11 @@ const App: React.FC = () => {
   
   return (
     <AppContainer>
-      <HamburgerButton onClick={toggleSettingsPanel}>
+      <MenuIcon onClick={toggleSettingsPanel}>
         <span></span>
         <span></span>
         <span></span>
-      </HamburgerButton>
+      </MenuIcon>
       
       <Overlay isOpen={settingsPanelOpen} onClick={() => setSettingsPanelOpen(false)} />
       

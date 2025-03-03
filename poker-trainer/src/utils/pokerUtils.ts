@@ -1,8 +1,8 @@
-import { Card, GameType, Position, PokerPuzzle, Player } from '../types/poker';
+import { Card, GameType, Position, PokerPuzzle, Player, PlayerAction } from '../types/poker';
 
 // Array of positions in order of first to act to last to act
-// UTG, MP, LJ, HJ, CO, BTN, SB, BB
-export const ALL_POSITIONS: Position[] = ['UTG', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
+// Order: UTG, UTG+1, UTG+2, MP, LJ, HJ, CO, BTN, SB, BB
+export const ALL_POSITIONS: Position[] = ['UTG', 'UTG+1', 'UTG+2', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 
 // Calculate positions based on number of players
 export const getPositionsForPlayerCount = (count: number): Position[] => {
@@ -12,46 +12,46 @@ export const getPositionsForPlayerCount = (count: number): Position[] => {
 
   // For heads-up (2 players)
   if (count === 2) {
-    return ['BTN', 'BB']; // In heads-up, SB is BTN
+    return ['BTN', 'BB'] as Position[]; // In heads-up, SB is BTN
   }
   
   // For 3 players
   if (count === 3) {
-    return ['BTN', 'SB', 'BB'];
+    return ['BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 4 players
   if (count === 4) {
-    return ['UTG', 'BTN', 'SB', 'BB'];
+    return ['CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 5 players
   if (count === 5) {
-    return ['UTG', 'CO', 'BTN', 'SB', 'BB'];
+    return ['HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 6 players
   if (count === 6) {
-    return ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+    return ['LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 7 players
   if (count === 7) {
-    return ['UTG', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 7) as Position[];
+    return ['MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 8 players
   if (count === 8) {
-    return ['UTG', 'UTG+1', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 8) as Position[];
+    return ['UTG', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
   // For 9 players
   if (count === 9) {
-    return ['UTG', 'UTG+1', 'MP+1', 'MP+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 9) as Position[];
+    return ['UTG', 'UTG+1', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
   }
   
-  // For 10 players
-  return ['UTG', 'UTG+1', 'MP+1', 'MP+2', 'MP+3', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 10) as Position[];
+  // For 10 players (full table)
+  return ['UTG', 'UTG+1', 'UTG+2', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'] as Position[];
 };
 
 // Generate a deck of cards
@@ -106,37 +106,75 @@ export const createSamplePuzzle = (
   userPosition: Position,
   bigBlinds: number
 ): PokerPuzzle => {
-  const bigBlindAmount = 100; // $1 big blind
-  const players = generatePlayers(playerCount, userPosition, bigBlinds, bigBlindAmount);
+  // Set up the basic game parameters
+  const smallBlind = 1;
+  const bigBlind = 2;
   
-  // Deal cards to players
+  // Generate players with their positions and stacks
+  const players = generatePlayers(playerCount, userPosition, bigBlinds, bigBlind);
+  
+  // Generate a shuffled deck
   const deck = shuffleDeck(generateDeck());
+  
+  // Deal cards to players - only show the actual cards for the user
   let cardIndex = 0;
+  const playersWithCards = players.map(player => {
+    // For all players, get cards from the deck
+    const cards: [Card, Card] = [deck[cardIndex], deck[cardIndex + 1]];
+    cardIndex += 2;
+    
+    // Only show the actual cards for the user
+    if (player.isUser) {
+      return { ...player, cards };
+    } else {
+      // For non-user players, set cards to null (will show as face-down)
+      return { ...player, cards: null };
+    }
+  });
   
-  const playersWithCards = players.map(player => ({
-    ...player,
-    cards: player.isUser ? [deck[cardIndex++], deck[cardIndex++]] as [Card, Card] : undefined
-  }));
+  // Deal community cards
+  const communityCards: Card[] = [];
+  for (let i = 0; i < 5; i++) {
+    communityCards.push(deck[cardIndex + i]);
+  }
   
-  // Sample community cards (flop)
-  const communityCards = [
-    deck[cardIndex++],
-    deck[cardIndex++],
-    deck[cardIndex++]
-  ];
+  // Random pot size between 5 and 20 big blinds
+  const potSize = bigBlind * (Math.floor(Math.random() * 15) + 5);
   
+  // Generate a random correct action
+  const actions: PlayerAction[] = ['FOLD', 'CALL', 'RAISE', 'CHECK'];
+  const correctAction = actions[Math.floor(Math.random() * actions.length)];
+  
+  // Generate a simple action description
+  let actionDescription = 'You should ';
+  switch (correctAction) {
+    case 'FOLD':
+      actionDescription += 'fold this hand as it is weak and not worth continuing.';
+      break;
+    case 'CALL':
+      actionDescription += 'call to see the next card as you have a drawing hand.';
+      break;
+    case 'RAISE':
+      actionDescription += 'raise to build the pot with your strong hand.';
+      break;
+    case 'CHECK':
+      actionDescription += 'check to see the next card for free.';
+      break;
+  }
+  
+  // Create the puzzle object
   return {
-    id: 1,
+    id: Math.floor(Math.random() * 1000) + 1,
     players: playersWithCards,
     blinds: {
-      small: bigBlindAmount / 2,
-      big: bigBlindAmount,
+      small: smallBlind,
+      big: bigBlind
     },
     communityCards,
-    pot: bigBlindAmount * 3, // Sample pot size
-    correctAction: 'RAISE',
-    actionDescription: 'Raise 3x because you have a strong hand and are in position',
+    pot: potSize,
+    correctAction,
+    actionDescription,
     gameType,
-    difficulty: 'MEDIUM',
+    difficulty: 'MEDIUM'
   };
 }; 

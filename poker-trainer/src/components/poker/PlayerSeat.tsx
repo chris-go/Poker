@@ -46,6 +46,22 @@ const PlayerCards = styled.div`
   margin-top: 8px;
 `;
 
+const FaceDownCard = styled.div`
+  width: 25px;
+  height: 35px;
+  border-radius: 3px;
+  background-color: #1f5ebf;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(0, 0, 0, 0.1) 5px,
+    rgba(0, 0, 0, 0.1) 10px
+  );
+  border: 1px solid #0d3177;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+`;
+
 const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBlindAmount = 1 }) => {
   return (
     <SeatContainer style={style} isActive={isActive}>
@@ -55,12 +71,19 @@ const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBli
       </div>
       <Stack>{player.stack / bigBlindAmount} BB</Stack>
       
-      {player.cards && (
-        <PlayerCards>
-          <Card rank={player.cards[0].rank} suit={player.cards[0].suit} />
-          <Card rank={player.cards[1].rank} suit={player.cards[1].suit} />
-        </PlayerCards>
-      )}
+      <PlayerCards>
+        {player.isUser && player.cards ? (
+          <>
+            <Card rank={player.cards[0].rank} suit={player.cards[0].suit} />
+            <Card rank={player.cards[1].rank} suit={player.cards[1].suit} />
+          </>
+        ) : (
+          <>
+            <FaceDownCard />
+            <FaceDownCard />
+          </>
+        )}
+      </PlayerCards>
     </SeatContainer>
   );
 };

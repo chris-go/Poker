@@ -1,4 +1,4 @@
-export type Position = 'SB' | 'BB' | 'UTG' | 'UTG+1' | 'MP' | 'MP+1' | 'MP+2' | 'MP+3' | 'LJ' | 'HJ' | 'CO' | 'BTN';
+export type Position = 'SB' | 'BB' | 'UTG' | 'UTG+1' | 'UTG+2' | 'MP' | 'MP+1' | 'MP+2' | 'MP+3' | 'LJ' | 'HJ' | 'CO' | 'BTN';
 
 export type GameType = 'CASH' | 'MTT';
 
@@ -13,7 +13,7 @@ export type Player = {
   id: number;
   position: Position;
   stack: number;
-  cards?: [Card, Card];
+  cards?: [Card, Card] | null;
   isUser: boolean;
 };
 
