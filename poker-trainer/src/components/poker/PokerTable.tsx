@@ -28,12 +28,12 @@ const TableWrapper = styled.div`
   width: 85%;
   height: 580px;
   margin: 30px auto 20px;
-  background: linear-gradient(135deg, #1e6321 0%, #2d8a22 50%, #277714 100%);
+  background: linear-gradient(180deg, #2d8a22 0%, #1e6321 60%, #277714 100%);
   border-radius: 200px;
   border: 15px solid #593a28;
   box-shadow: 
     0 20px 30px rgba(0, 0, 0, 0.5),
-    inset 0 5px 20px rgba(255, 255, 255, 0.1),
+    inset 0 5px 20px rgba(255, 255, 255, 0.2),
     inset 0 -10px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
@@ -66,9 +66,9 @@ const TableWrapper = styled.div`
     right: 0;
     bottom: 0;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 10%),
-      radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 15%),
-      radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 12%);
+      radial-gradient(ellipse at 50% 15%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
     border-radius: inherit;
     pointer-events: none;
   }
@@ -81,6 +81,18 @@ const TableCenter = styled.div`
   justify-content: center;
   position: relative;
   z-index: 5; /* Lower z-index than player seats but higher than table background */
+  
+  /* Add subtle top lighting effect for the center area */
+  &:before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -100px;
+    right: -100px;
+    height: 80px;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
 `;
 
 const CommunityCards = styled.div`
@@ -139,8 +151,8 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   if (isPortrait) {
     // For portrait orientation, use rectangle layout similar to landscape
     // but with more vertical spacing
-    xRadius = 40;
-    yRadius = 42; // Reduced from 48 to prevent top player from being cut off
+    xRadius = 45; // Increased from 40 to push players further out
+    yRadius = 47; // Increased from 42 to push players further out
     
     // For portrait, adjust top and bottom player positions for better spacing
     // Bottom user player should be much higher to avoid overlapping with buttons
@@ -161,8 +173,8 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   } else {
     // For landscape and larger screens, use oval positioning with spacing
     // for players on left and right sides
-    xRadius = 42;
-    yRadius = 38;
+    xRadius = 47; // Increased from 42 to push players further out
+    yRadius = 42; // Increased from 38 to push players further out
     
     // Add spacing by adjusting specific player positions based on their angle
     // Left side players (UTG & BB) need more right offset
