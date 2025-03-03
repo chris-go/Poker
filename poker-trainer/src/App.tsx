@@ -5,6 +5,12 @@ import PuzzleView from './components/puzzles/PuzzleView';
 import { GameSettings as GameSettingsType, PokerPuzzle, PlayerAction } from './types/poker';
 import { createSamplePuzzle } from './utils/pokerUtils';
 
+// Define a new type that includes isCorrect flag
+interface ActionResult {
+  action: PlayerAction;
+  isCorrect: boolean;
+}
+
 const AppContainer = styled.div`
   font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
   width: 100%;
@@ -105,21 +111,28 @@ const App: React.FC = () => {
     setSettingsPanelOpen(false); // Close the settings panel after applying
   };
   
-  const handleActionSelected = (action: PlayerAction) => {
+  // Modified to accept ActionResult which includes explicit isCorrect flag
+  const handleActionSelected = (result: ActionResult) => {
     if (!puzzle) return;
     
-    // Update stats
-    const isCorrect = action === puzzle.correctAction;
+    // Use the isCorrect flag from the PuzzleView component
+    const isCorrect = result.isCorrect;
+    
+    // Update stats based on the isCorrect flag
     setStats(prev => ({
       correct: prev.correct + (isCorrect ? 1 : 0),
       incorrect: prev.incorrect + (isCorrect ? 0 : 1),
       total: prev.total + 1,
     }));
     
-    // Generate a new puzzle after a delay
-    setTimeout(() => {
-      generateNewPuzzle();
-    }, 2000);
+    // Only generate a new puzzle if the answer is correct
+    if (isCorrect) {
+      // Generate a new puzzle after a delay that matches the feedback display time
+      setTimeout(() => {
+        generateNewPuzzle();
+      }, 1000); // Reduced to 1 second to match the feedback display timing
+    }
+    // If incorrect, we'll keep the same puzzle (handled in PuzzleView component)
   };
   
   const accuracy = stats.total > 0 

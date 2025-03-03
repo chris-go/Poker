@@ -6,9 +6,15 @@ import { PokerPuzzle, PlayerAction } from '../../types/poker';
 // Only import StatLabel, define our own StatValue
 // import { StatLabel } from '../../App';
 
+// Define ActionResult type to pass to parent component
+interface ActionResult {
+  action: PlayerAction;
+  isCorrect: boolean;
+}
+
 interface PuzzleViewProps {
   puzzle: PokerPuzzle;
-  onActionSelected: (action: PlayerAction) => void;
+  onActionSelected: (result: ActionResult) => void;
   onMenuClick?: () => void;
   stats: {
     correct: number;
@@ -35,20 +41,30 @@ const PuzzleContainer = styled.div`
   }
 `;
 
-const ActionPanel = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 40px; /* Increased to move buttons down more */
+// Fixed height container to avoid layout shifts
+const ActionAreaWrapper = styled.div`
   width: 100%;
   max-width: 800px;
+  height: 140px; /* Fixed height that accommodates buttons and explanation */
+  margin-top: 60px; /* Increased from 40px to add more space between table and buttons */
   padding: 0 20px;
-  position: relative; /* For absolute positioning of feedback */
+  display: flex;
+  flex-direction: column;
+  position: relative;
   
   @media (orientation: landscape) {
-    margin-top: 30px; /* Increased in landscape mode too */
+    margin-top: 50px; /* Increased from 30px for landscape mode */
     max-width: 600px;
+    height: 120px;
   }
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  position: relative;
 `;
 
 const ActionButtons = styled.div`
@@ -56,41 +72,38 @@ const ActionButtons = styled.div`
   justify-content: center;
   gap: 15px;
   width: 100%;
-  flex-wrap: wrap;
+  height: 100%;
 `;
 
-// Stats box positioned at top left - more compact with grayed-out text
-// const StatsContainer = styled.div`
-//   position: absolute;
-//   top: 15px;
-//   left: 15px;
-//   z-index: 100;
-//   background-color: rgba(42, 42, 42, 0.85);
-//   border-radius: 8px;
-//   padding: 8px 10px;
-//   width: 150px;
-//   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-// `;
-
-// const StatsRow = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   margin-bottom: 4px;
-//   font-size: 0.9em;
-//   color: rgba(224, 224, 224, 0.7); /* Grayed out text */
-// `;
-
-// const GameModeText = styled.div`
-//   font-size: 15px;
-//   font-weight: bold;
-//   color: rgba(224, 224, 224, 0.8);
-//   margin-bottom: 6px;
-//   text-align: center;
-// `;
-
-// const StatValue = styled.div`
-//   font-weight: bold;
-// `;
+// Menu icon positioned at top right
+const MenuIcon = styled.div`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  span {
+    display: block;
+    height: 3px;
+    width: 22px;
+    margin: 2px 0;
+    background-color: white;
+  }
+`;
 
 const ActionButton = styled.button<{ action: PlayerAction }>`
   padding: 12px 25px;
@@ -103,6 +116,7 @@ const ActionButton = styled.button<{ action: PlayerAction }>`
   flex: 1;
   min-width: 100px;
   position: relative;
+  height: 100%;
   
   ${props => {
     switch (props.action) {
@@ -145,50 +159,47 @@ const HotkeyIndicator = styled.span`
   border-radius: 3px;
 `;
 
-// Updated FeedbackContainer to not cause layout shifts
+// Feedback container that overlays the button area exactly
 const FeedbackContainer = styled.div<{ correct: boolean }>`
   position: absolute;
-  top: 100%; /* Position below the buttons */
-  left: 20px;
-  right: 20px;
-  margin-top: 10px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
   background-color: ${props => props.correct ? '#2a4a2a' : '#4a2a2a'};
   color: ${props => props.correct ? '#90ee90' : '#ff9090'};
-  padding: 15px;
   border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   font-weight: bold;
+  font-size: 20px;
   z-index: 10;
 `;
 
-// Menu icon positioned at top right
-const MenuIcon = styled.div`
-  position: absolute;
-  top: 15px;
-  right: 15px; /* Position at top right instead */
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 100;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-  
-  span {
-    display: block;
-    height: 3px;
-    width: 22px;
-    margin: 2px 0;
-    background-color: white;
-  }
+// Explanation text for incorrect answers
+const ExplanationContainer = styled.div`
+  width: 100%;
+  margin-top: 15px;
+  color: #ff9090;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+`;
+
+const ErrorMessage = styled.div`
+  width: 100%;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 500;
+  font-size: 16px;
 `;
 
 const PuzzleView: React.FC<PuzzleViewProps> = ({ 
@@ -200,29 +211,103 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({
 }) => {
   const [selectedAction, setSelectedAction] = useState<PlayerAction | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [currentPuzzle, setCurrentPuzzle] = useState<PokerPuzzle>(puzzle);
+  const [puzzleError, setPuzzleError] = useState<string | null>(null);
   
-  const userPlayer = puzzle.players.find(player => player.isUser);
+  const userPlayer = currentPuzzle.players.find(player => player.isUser);
   
   // Determine if the user is in the big blind position
   const isUserBigBlind = userPlayer?.position === 'BB';
   
   // Determine if there is a bet to call (if not, user can check)
-  const hasBetToCall = puzzle.pot > (puzzle.blinds.big + puzzle.blinds.small);
+  const hasBetToCall = currentPuzzle.pot > (currentPuzzle.blinds.big + currentPuzzle.blinds.small);
+  
+  // Check for inconsistency between puzzle's correctAction and available actions
+  useEffect(() => {
+    // Clear any existing error
+    setPuzzleError(null);
+    
+    // Check if the correctAction is CHECK but CHECK is not available (only CALL is)
+    if (currentPuzzle.correctAction === 'CHECK' && hasBetToCall) {
+      setPuzzleError("Error: Puzzle expects CHECK but there's a bet to call");
+      console.error("Puzzle inconsistency: correctAction is CHECK but hasBetToCall is true");
+    }
+    
+    // Check if the correctAction is CALL but CALL is not available (only CHECK is)
+    if (currentPuzzle.correctAction === 'CALL' && !hasBetToCall && isUserBigBlind) {
+      setPuzzleError("Error: Puzzle expects CALL but there's no bet to call");
+      console.error("Puzzle inconsistency: correctAction is CALL but hasBetToCall is false and isUserBigBlind is true");
+    }
+  }, [currentPuzzle, hasBetToCall, isUserBigBlind]);
   
   // Reset state when puzzle changes
   useEffect(() => {
-    setSelectedAction(null);
-    setShowFeedback(false);
-  }, [puzzle]);
+    if (puzzle.id !== currentPuzzle.id) {
+      setSelectedAction(null);
+      setShowFeedback(false);
+      setShowExplanation(false);
+      setCurrentPuzzle(puzzle);
+      setPuzzleError(null);
+    }
+  }, [puzzle, currentPuzzle.id]);
+  
+  // Function to determine if the user's action is correct
+  // This handles the CHECK/CALL equivalence
+  const isActionCorrect = useCallback((action: PlayerAction): boolean => {
+    const correctAction = currentPuzzle.correctAction;
+    
+    // Direct match
+    if (action === correctAction) {
+      return true;
+    }
+    
+    // CHECK/CALL equivalence
+    // If user selected CHECK and the correct action is CALL, but CHECK is the only available option
+    if (action === 'CHECK' && correctAction === 'CALL' && isUserBigBlind && !hasBetToCall) {
+      console.log('Accepting CHECK as correct when CALL was expected but unavailable');
+      return true;
+    }
+    
+    // If user selected CALL and the correct action is CHECK, but CALL is the only available option
+    if (action === 'CALL' && correctAction === 'CHECK' && hasBetToCall) {
+      console.log('Accepting CALL as correct when CHECK was expected but unavailable');
+      return true;
+    }
+    
+    return false;
+  }, [currentPuzzle.correctAction, isUserBigBlind, hasBetToCall]);
   
   // Use useCallback to memoize the handleActionClick function
   const handleActionClick = useCallback((action: PlayerAction) => {
     setSelectedAction(action);
     setShowFeedback(true);
-    onActionSelected(action);
-  }, [onActionSelected]);
+    setShowExplanation(false);
+    
+    // Check if the action is correct (including CHECK/CALL equivalence)
+    const actionIsCorrect = isActionCorrect(action);
+    
+    // Pass the original action along with the correctness flag to the parent
+    onActionSelected({ 
+      action, 
+      isCorrect: actionIsCorrect 
+    });
+    
+    // Always hide feedback after 1 second for both correct and incorrect answers
+    setTimeout(() => {
+      // For incorrect answers, show the explanation
+      if (!actionIsCorrect) {
+        setShowFeedback(false);
+        setShowExplanation(true);
+      } else {
+        // For correct answers, just hide the feedback (next puzzle will load automatically)
+        setShowFeedback(false);
+      }
+    }, 1000);
+  }, [onActionSelected, isActionCorrect]);
   
-  const isCorrect = selectedAction === puzzle.correctAction;
+  // Use our custom isActionCorrect function instead of direct comparison
+  const isCorrect = selectedAction ? isActionCorrect(selectedAction) : false;
   
   // Add keyboard event listeners for hotkeys
   useEffect(() => {
@@ -258,6 +343,35 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({
     };
   }, [showFeedback, hasBetToCall, isUserBigBlind, handleActionClick]);
   
+  // If correctAction is CHECK, make sure action is available
+  const canCheck = isUserBigBlind && !hasBetToCall;
+  // If correctAction is CALL, make sure action is available
+  const canCall = hasBetToCall;
+  
+  // Override correct action if needed to match available actions
+  // This ensures the user always has the ability to select the correct action
+  useEffect(() => {
+    // This is a temporary fix to handle inconsistent puzzles
+    // Long-term the puzzle generation should be fixed
+    if (currentPuzzle.correctAction === 'CHECK' && !canCheck && canCall) {
+      // If puzzle says CHECK but CHECK isn't available, change to CALL
+      const updatedPuzzle = {
+        ...currentPuzzle,
+        correctAction: 'CALL' as PlayerAction
+      };
+      setCurrentPuzzle(updatedPuzzle);
+      console.log("Corrected puzzle: Changed correctAction from CHECK to CALL");
+    } else if (currentPuzzle.correctAction === 'CALL' && !canCall && canCheck) {
+      // If puzzle says CALL but CALL isn't available, change to CHECK
+      const updatedPuzzle = {
+        ...currentPuzzle,
+        correctAction: 'CHECK' as PlayerAction
+      };
+      setCurrentPuzzle(updatedPuzzle);
+      console.log("Corrected puzzle: Changed correctAction from CALL to CHECK");
+    }
+  }, [currentPuzzle, canCheck, canCall]);
+  
   return (
     <PuzzleContainer>
       {/* Menu icon positioned at top right */}
@@ -268,48 +382,62 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({
       </MenuIcon>
       
       <PokerTable 
-        players={puzzle.players}
-        communityCards={puzzle.communityCards}
-        pot={puzzle.pot}
+        players={currentPuzzle.players}
+        communityCards={currentPuzzle.communityCards}
+        pot={currentPuzzle.pot}
         activePosition={userPlayer?.position}
-        bigBlindAmount={puzzle.blinds.big}
+        bigBlindAmount={currentPuzzle.blinds.big}
         stats={stats}
         accuracy={accuracy}
       />
       
-      <ActionPanel>
-        <ActionButtons>
-          <ActionButton action="FOLD" onClick={() => handleActionClick('FOLD')}>
-            Fold
-            <HotkeyIndicator>F</HotkeyIndicator>
-          </ActionButton>
-          
-          {isUserBigBlind && !hasBetToCall ? (
-            <ActionButton action="CHECK" onClick={() => handleActionClick('CHECK')}>
-              Check
-              <HotkeyIndicator>C</HotkeyIndicator>
+      <ActionAreaWrapper>
+        <ButtonContainer>
+          <ActionButtons>
+            <ActionButton action="FOLD" onClick={() => handleActionClick('FOLD')}>
+              Fold
+              <HotkeyIndicator>F</HotkeyIndicator>
             </ActionButton>
-          ) : hasBetToCall ? (
-            <ActionButton action="CALL" onClick={() => handleActionClick('CALL')}>
-              Call
-              <HotkeyIndicator>C</HotkeyIndicator>
+            
+            {isUserBigBlind && !hasBetToCall ? (
+              <ActionButton action="CHECK" onClick={() => handleActionClick('CHECK')}>
+                Check
+                <HotkeyIndicator>C</HotkeyIndicator>
+              </ActionButton>
+            ) : hasBetToCall ? (
+              <ActionButton action="CALL" onClick={() => handleActionClick('CALL')}>
+                Call
+                <HotkeyIndicator>C</HotkeyIndicator>
+              </ActionButton>
+            ) : null}
+            
+            <ActionButton action="RAISE" onClick={() => handleActionClick('RAISE')}>
+              Raise
+              <HotkeyIndicator>R</HotkeyIndicator>
             </ActionButton>
-          ) : null}
+          </ActionButtons>
           
-          <ActionButton action="RAISE" onClick={() => handleActionClick('RAISE')}>
-            Raise
-            <HotkeyIndicator>R</HotkeyIndicator>
-          </ActionButton>
-        </ActionButtons>
+          {showFeedback && (
+            <FeedbackContainer correct={isCorrect}>
+              {isCorrect ? 'Correct!' : 'Incorrect'}
+            </FeedbackContainer>
+          )}
+        </ButtonContainer>
         
-        {showFeedback && (
-          <FeedbackContainer correct={isCorrect}>
-            {isCorrect
-              ? 'Correct! ' + puzzle.actionDescription
-              : 'Not the best play. ' + puzzle.actionDescription}
-          </FeedbackContainer>
+        {/* Show explanation for incorrect answers after feedback disappears */}
+        {showExplanation && !isCorrect && !showFeedback && (
+          <ExplanationContainer>
+            {currentPuzzle.actionDescription}
+          </ExplanationContainer>
         )}
-      </ActionPanel>
+        
+        {/* Show puzzle error if detected */}
+        {puzzleError && (
+          <ErrorMessage>
+            {puzzleError}
+          </ErrorMessage>
+        )}
+      </ActionAreaWrapper>
     </PuzzleContainer>
   );
 };
