@@ -7,6 +7,7 @@ interface PlayerSeatProps {
   player: Player;
   style?: CSSProperties;
   isActive?: boolean;
+  bigBlindAmount?: number;
 }
 
 const SeatContainer = styled.div<{ isActive?: boolean }>`
@@ -45,14 +46,14 @@ const PlayerCards = styled.div`
   margin-top: 8px;
 `;
 
-const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive }) => {
+const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBlindAmount = 1 }) => {
   return (
     <SeatContainer style={style} isActive={isActive}>
       <div>
         <PositionBadge>{player.position}</PositionBadge>
         {player.isUser && '👤'}
       </div>
-      <Stack>${player.stack}</Stack>
+      <Stack>{player.stack / bigBlindAmount} BB</Stack>
       
       {player.cards && (
         <PlayerCards>

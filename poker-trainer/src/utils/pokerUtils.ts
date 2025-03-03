@@ -1,8 +1,8 @@
 import { Card, GameType, Position, PokerPuzzle, Player } from '../types/poker';
 
-// Array of positions in clockwise order around a poker table
-// In clockwise order: SB, BB, UTG, MP, HJ, CO, BTN
-export const ALL_POSITIONS: Position[] = ['SB', 'BB', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
+// Array of positions in order of first to act to last to act
+// UTG, MP, LJ, HJ, CO, BTN, SB, BB
+export const ALL_POSITIONS: Position[] = ['UTG', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 
 // Calculate positions based on number of players
 export const getPositionsForPlayerCount = (count: number): Position[] => {
@@ -12,46 +12,46 @@ export const getPositionsForPlayerCount = (count: number): Position[] => {
 
   // For heads-up (2 players)
   if (count === 2) {
-    return ['SB', 'BB'];
+    return ['BTN', 'BB']; // In heads-up, SB is BTN
   }
   
   // For 3 players
   if (count === 3) {
-    return ['SB', 'BB', 'BTN'];
+    return ['BTN', 'SB', 'BB'];
   }
   
   // For 4 players
   if (count === 4) {
-    return ['SB', 'BB', 'UTG', 'BTN'];
+    return ['UTG', 'BTN', 'SB', 'BB'];
   }
   
   // For 5 players
   if (count === 5) {
-    return ['SB', 'BB', 'UTG', 'CO', 'BTN'];
+    return ['UTG', 'CO', 'BTN', 'SB', 'BB'];
   }
   
   // For 6 players
   if (count === 6) {
-    return ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
+    return ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
   }
   
   // For 7 players
   if (count === 7) {
-    return ['SB', 'BB', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
+    return ['UTG', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 7) as Position[];
   }
   
   // For 8 players
   if (count === 8) {
-    return ['SB', 'BB', 'UTG', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
+    return ['UTG', 'UTG+1', 'MP', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 8) as Position[];
   }
   
   // For 9 players
   if (count === 9) {
-    return ['SB', 'BB', 'UTG', 'UTG', 'MP', 'MP', 'HJ', 'CO', 'BTN'];
+    return ['UTG', 'UTG+1', 'MP+1', 'MP+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 9) as Position[];
   }
   
   // For 10 players
-  return ['SB', 'BB', 'UTG', 'UTG', 'MP', 'MP', 'MP', 'HJ', 'CO', 'BTN'];
+  return ['UTG', 'UTG+1', 'MP+1', 'MP+2', 'MP+3', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'].slice(count - 10) as Position[];
 };
 
 // Generate a deck of cards

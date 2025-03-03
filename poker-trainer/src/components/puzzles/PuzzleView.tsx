@@ -123,14 +123,15 @@ const PuzzleView: React.FC<PuzzleViewProps> = ({ puzzle, onActionSelected }) => 
         communityCards={puzzle.communityCards}
         pot={puzzle.pot}
         activePosition={userPlayer?.position}
+        bigBlindAmount={puzzle.blinds.big}
       />
       
       <ActionPanel>
         <SituationDescription>
           {puzzle.gameType === 'CASH' ? 'Cash Game' : 'Tournament'} - 
-          Blinds: ${puzzle.blinds.small}/${puzzle.blinds.big} - 
-          Pot: ${puzzle.pot} - 
-          Your Stack: ${userPlayer?.stack || 0}
+          Blinds: {puzzle.blinds.small/puzzle.blinds.big}/1 BB - 
+          Pot: {puzzle.pot/puzzle.blinds.big} BB - 
+          Your Stack: {userPlayer?.stack ? (userPlayer.stack/puzzle.blinds.big) : 0} BB
         </SituationDescription>
         
         <ActionButtons>

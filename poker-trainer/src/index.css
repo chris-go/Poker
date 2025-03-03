@@ -5,8 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
 }
 
 code {
@@ -24,4 +24,5 @@ button {
 
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
+  color: #ffffff;
 }

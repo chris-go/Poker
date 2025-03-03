@@ -1,4 +1,4 @@
-export type Position = 'SB' | 'BB' | 'UTG' | 'MP' | 'HJ' | 'CO' | 'BTN';
+export type Position = 'SB' | 'BB' | 'UTG' | 'UTG+1' | 'MP' | 'MP+1' | 'MP+2' | 'MP+3' | 'LJ' | 'HJ' | 'CO' | 'BTN';
 
 export type GameType = 'CASH' | 'MTT';
 

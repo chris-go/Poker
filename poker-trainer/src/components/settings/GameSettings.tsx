@@ -9,16 +9,16 @@ interface GameSettingsProps {
 }
 
 const SettingsContainer = styled.div`
-  background-color: #f5f5f5;
+  background-color: #333333;
   border-radius: 8px;
   padding: 20px;
   margin: 20px auto;
   max-width: 500px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 `;
 
 const SettingsTitle = styled.h2`
-  color: #333;
+  color: #ffffff;
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
@@ -32,15 +32,16 @@ const Label = styled.label`
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #555;
+  color: #e0e0e0;
 `;
 
 const Select = styled.select`
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #555;
   border-radius: 4px;
-  background-color: white;
+  background-color: #444;
+  color: #e0e0e0;
   font-size: 16px;
 `;
 
@@ -195,7 +196,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({
             value={settings.bigBlinds}
             onChange={handleChange}
           >
-            {[20, 30, 40, 50, 75, 100, 150, 200, 250].map(bb => (
+            {[10, 20, 30, 50, 100].map(bb => (
               <option key={bb} value={bb}>{bb} BB</option>
             ))}
           </Select>

@@ -9,6 +9,7 @@ interface PokerTableProps {
   communityCards: CardType[];
   pot: number;
   activePosition?: string;
+  bigBlindAmount?: number;
 }
 
 const TableWrapper = styled.div`
@@ -69,18 +70,31 @@ const getPlayerPosition = (index: number, total: number): { top: string; left: s
   return { top, left };
 };
 
-const PokerTable: React.FC<PokerTableProps> = ({ players, communityCards, pot, activePosition }) => {
-  // Sort players to ensure they are in clockwise order
-  // In poker, the standard order is SB, BB, UTG, MP, HJ, CO, BTN
+const PokerTable: React.FC<PokerTableProps> = ({ 
+  players, 
+  communityCards, 
+  pot, 
+  activePosition,
+  bigBlindAmount = 1 
+}) => {
+  // Find the user player
+  const userPlayer = players.find(player => player.isUser);
+  
+  // Sort players to ensure they are in the right order
+  // For display purposes, put the user at the bottom (6 o'clock position)
   const sortedPlayers = [...players].sort((a, b) => {
-    // Define the clockwise order of positions
-    const positionOrder = ['SB', 'BB', 'UTG', 'MP', 'HJ', 'CO', 'BTN'];
+    // If one of the players is the user, place them last (bottom of the table)
+    if (a.isUser) return 1;
+    if (b.isUser) return -1;
+    
+    // Define the clockwise order of positions - order of action with SB and BB last
+    const positionOrder = ['UTG', 'UTG+1', 'MP', 'MP+1', 'MP+2', 'MP+3', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
     
     // Find the index of each position in the order
     const indexA = positionOrder.indexOf(a.position);
     const indexB = positionOrder.indexOf(b.position);
     
-    // Handle positions that might appear multiple times (like UTG+1, MP1, etc.)
+    // Handle positions that might appear multiple times
     if (indexA === indexB && a.position === b.position) {
       return a.id - b.id; // Use player ID as a tiebreaker
     }
@@ -91,7 +105,12 @@ const PokerTable: React.FC<PokerTableProps> = ({ players, communityCards, pot, a
   return (
     <TableWrapper>
       {sortedPlayers.map((player, index) => {
-        const position = getPlayerPosition(index, sortedPlayers.length);
+        // Calculate position - the user should always be at the bottom
+        const calculatedIndex = player.isUser 
+          ? sortedPlayers.length - 1 // Always put user at the bottom
+          : index;
+        const position = getPlayerPosition(calculatedIndex, sortedPlayers.length);
+        
         return (
           <PlayerSeat
             key={player.id}
@@ -103,6 +122,7 @@ const PokerTable: React.FC<PokerTableProps> = ({ players, communityCards, pot, a
               transform: 'translate(-50%, -50%)'
             }}
             isActive={player.position === activePosition}
+            bigBlindAmount={bigBlindAmount}
           />
         );
       })}
@@ -113,7 +133,7 @@ const PokerTable: React.FC<PokerTableProps> = ({ players, communityCards, pot, a
             <Card key={index} rank={card.rank} suit={card.suit} />
           ))}
         </CommunityCards>
-        <PotInfo>Pot: ${pot}</PotInfo>
+        <PotInfo>{pot / bigBlindAmount} BB</PotInfo>
       </TableCenter>
     </TableWrapper>
   );

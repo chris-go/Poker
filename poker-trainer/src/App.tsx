@@ -19,20 +19,20 @@ const Header = styled.header`
 `;
 
 const Title = styled.h1`
-  color: #2c3e50;
+  color: #ffffff;
   margin-bottom: 10px;
 `;
 
 const Subtitle = styled.p`
-  color: #7f8c8d;
+  color: #b0b0b0;
   font-size: 18px;
 `;
 
 const MainContent = styled.main`
-  background-color: white;
+  background-color: #2a2a2a;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 `;
 
 const Stats = styled.div`
@@ -43,11 +43,12 @@ const Stats = styled.div`
 `;
 
 const StatBox = styled.div`
-  background-color: #f8f9fa;
+  background-color: #333333;
   border-radius: 5px;
   padding: 15px;
   text-align: center;
   min-width: 120px;
+  color: #e0e0e0;
 `;
 
 const StatLabel = styled.div`
