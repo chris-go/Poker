@@ -44,17 +44,41 @@ const TableWrapper = styled.div`
   
   /* Add responsive styling for landscape orientation */
   @media (orientation: landscape) {
-    height: min(480px, 75vh); /* Reduced height slightly to create more space for buttons */
+    height: min(500px, 75vh); /* Increased from 450px to make table bigger */
     margin: 20px auto 30px; /* Increased bottom margin */
-    width: 80%;
+    width: 85%; /* Increased from 75% to make table wider */
+    max-width: 1100px; /* Increased max width for larger screens */
+    
+    /* For smaller landscape screens, keep the table more compact */
+    @media (max-width: 1024px) {
+      width: 80%;
+      height: min(480px, 72vh);
+      max-width: 950px;
+    }
+    
+    /* For very small landscape screens, maintain the more compact layout */
+    @media (max-width: 768px) {
+      width: 75%;
+      height: min(450px, 70vh);
+      max-width: 850px;
+    }
   }
   
   /* Make portrait mode table a rounded rectangle like landscape mode */
   @media (orientation: portrait) and (max-width: 767px) {
-    width: 95%;
-    height: min(650px, 80vh); /* Reduced from 700px to prevent top player cutoff */
+    width: 90%; /* Reduced from 95% to prevent player cutoff */
+    height: min(600px, 75vh); /* Further reduced from 650px to prevent player cutoff */
     border-radius: 200px; /* Same rounded rectangle shape as landscape mode */
     margin: 15px auto 30px; /* Adjusted margins to balance spacing */
+    max-width: 90vw; /* Ensure table doesn't extend beyond screen width */
+  }
+  
+  /* Extra handling for very narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    width: 85%; /* Even smaller on very narrow screens */
+    height: min(550px, 70vh); /* Further reduced height */
+    border-radius: 150px; /* Smaller radius for smaller table */
+    border-width: 12px; /* Thinner border */
   }
   
   /* Add subtle background pattern */
@@ -82,6 +106,11 @@ const TableCenter = styled.div`
   position: relative;
   z-index: 5; /* Lower z-index than player seats but higher than table background */
   
+  /* Scale down for narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    transform: scale(0.9);
+  }
+  
   /* Add subtle top lighting effect for the center area */
   &:before {
     content: '';
@@ -100,6 +129,12 @@ const CommunityCards = styled.div`
   gap: 10px;
   margin-bottom: 15px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  
+  /* Tighter spacing for narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 `;
 
 const PotInfo = styled.div`
@@ -112,6 +147,14 @@ const PotInfo = styled.div`
   backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  /* Smaller for narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.9em;
+    margin-bottom: 6px;
+  }
 `;
 
 const AccuracyInfo = styled.div`
@@ -124,6 +167,13 @@ const AccuracyInfo = styled.div`
   backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  /* Smaller for narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.85em;
+  }
 `;
 
 // Calculate positions for each player seat evenly around an oval
@@ -142,67 +192,168 @@ const getPlayerPosition = (index: number, total: number, userIndex: number): { t
   // Calculate angle evenly distributed around the circle
   const angle = (shiftedIndex / total) * 2 * Math.PI;
   
-  // Check if we're on a mobile device with portrait orientation
-  const isPortrait = window.matchMedia("(orientation: portrait) and (max-width: 767px)").matches;
+  // Check if this is the user's position (placed at the bottom of the table)
+  const isUserPosition = shiftedIndex === idealUserIndex;
   
-  // Adjust radius based on orientation
+  // Check device orientation and width
+  const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+  const isNarrowPortrait = window.matchMedia("(orientation: portrait) and (max-width: 380px)").matches;
+  const isLargeScreen = window.matchMedia("(orientation: landscape) and (min-width: 1024px)").matches;
+  
+  // Adjust radius based on orientation and device width
   let xRadius, yRadius;
   
-  if (isPortrait) {
-    // For portrait orientation, use rectangle layout similar to landscape
-    // but with more vertical spacing
-    xRadius = 45; // Increased from 40 to push players further out
-    yRadius = 47; // Increased from 42 to push players further out
-    
-    // For portrait, adjust top and bottom player positions for better spacing
-    // Bottom user player should be much higher to avoid overlapping with buttons
-    if (Math.sin(angle) > 0.9) { // User player at bottom (BTN position)
+  // Special positioning for the user's seat (BTN position) - Only in landscape mode
+  if (isUserPosition && !isPortrait) {
+    if (isLargeScreen) {
       return {
-        left: `${50 + xRadius * Math.cos(angle)}%`,
-        top: `${48 + yRadius * Math.sin(angle)}%` // Move bottom player up significantly
+        left: `${50 + 49 * Math.cos(angle)}%`,
+        top: `${56 + 46 * Math.sin(angle)}%` // Moved further down
       };
-    }
-    
-    // Top players need to be moved down to avoid being cut off
-    if (Math.sin(angle) < -0.8) {
+    } else {
       return {
-        left: `${50 + xRadius * Math.cos(angle)}%`,
-        top: `${50 + yRadius * Math.sin(angle)}%` // Move top players down slightly
-      };
-    }
-  } else {
-    // For landscape and larger screens, use oval positioning with spacing
-    // for players on left and right sides
-    xRadius = 47; // Increased from 42 to push players further out
-    yRadius = 42; // Increased from 38 to push players further out
-    
-    // Add spacing by adjusting specific player positions based on their angle
-    // Left side players (UTG & BB) need more right offset
-    if (Math.cos(angle) < -0.7 && Math.cos(angle) > -0.95) {
-      return {
-        left: `${50 + (xRadius + 3) * Math.cos(angle)}%`,
-        top: `${50 + yRadius * Math.sin(angle)}%`
-      };
-    }
-    
-    // Right side players (LJ & HJ) need more left offset
-    if (Math.cos(angle) > 0.7 && Math.cos(angle) < 0.95) {
-      return {
-        left: `${50 + (xRadius + 3) * Math.cos(angle)}%`,
-        top: `${50 + yRadius * Math.sin(angle)}%`
-      };
-    }
-    
-    // Bottom user player (BTN) needs to be moved up to avoid overlap with buttons
-    if (Math.sin(angle) > 0.9) {
-      return {
-        left: `${50 + xRadius * Math.cos(angle)}%`,
-        top: `${48 + yRadius * Math.sin(angle)}%` // Move up to avoid overlap with buttons
+        left: `${50 + 47 * Math.cos(angle)}%`,
+        top: `${56 + 43 * Math.sin(angle)}%` // Moved further down
       };
     }
   }
   
-  // Calculate position
+  // Continue with existing positioning for all other positions and portrait mode
+  if (isNarrowPortrait) {
+    // For very narrow portrait devices, bring players much closer to center
+    xRadius = 44;
+    yRadius = 42;
+    
+    // Bottom player (BTN - user) in portrait mode
+    if (isUserPosition) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${48 + (yRadius - 3) * Math.sin(angle)}%` // Original positioning
+      };
+    }
+    
+    // Top players
+    if (Math.sin(angle) < -0.8) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${52 + (yRadius - 3) * Math.sin(angle)}%` // Move down more
+      };
+    }
+    
+    // Left side players
+    if (Math.cos(angle) < -0.7) {
+      return {
+        left: `${50 + (xRadius - 2) * Math.cos(angle)}%`, // Pull in more
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Right side players
+    if (Math.cos(angle) > 0.7) {
+      return {
+        left: `${50 + (xRadius - 2) * Math.cos(angle)}%`, // Pull in more
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+  } else if (isPortrait) {
+    // For standard portrait orientation, use consistent spacing but pulled in more
+    xRadius = 46; // Reduced from 50 to prevent cutoff
+    yRadius = 45; // Reduced from 49 to prevent cutoff
+    
+    // Bottom player (BTN - user) in portrait mode
+    if (isUserPosition) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${48 + yRadius * Math.sin(angle)}%` // Original positioning
+      };
+    }
+    
+    // Top players need a slight adjustment to avoid being cut off
+    if (Math.sin(angle) < -0.8) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${52 + yRadius * Math.sin(angle)}%` // Move top players down slightly
+      };
+    }
+    
+    // Adjust left side players to be more consistently positioned
+    if (Math.cos(angle) < -0.7) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Adjust right side players to be more consistently positioned
+    if (Math.cos(angle) > 0.7) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+  } else if (isLargeScreen) {
+    // For large landscape screens, we can spread players out more
+    xRadius = 49; // Increased for larger table
+    yRadius = 46; // Increased for larger table
+    
+    // Create more consistent positioning for all players around the table
+    
+    // Left side players (UTG & BB)
+    if (Math.cos(angle) < -0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Right side players (LJ & HJ)
+    if (Math.cos(angle) > 0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Top players
+    if (Math.sin(angle) < -0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+  } else {
+    // For standard landscape screens, position players appropriately
+    xRadius = 47; // Reduced from 52 to pull players in from edges
+    yRadius = 43; // Reduced from 48 to pull players in from edges
+    
+    // Create more consistent positioning for all players around the table
+    
+    // Left side players (UTG & BB) - adjust positioning to prevent cutoff
+    if (Math.cos(angle) < -0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Right side players (LJ & HJ) - adjust positioning to prevent cutoff
+    if (Math.cos(angle) > 0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+    
+    // Top players need space to avoid being cut off
+    if (Math.sin(angle) < -0.5) {
+      return {
+        left: `${50 + xRadius * Math.cos(angle)}%`,
+        top: `${50 + yRadius * Math.sin(angle)}%`
+      };
+    }
+  }
+  
+  // Default positioning for all other players - more consistent distance from edge
   const left = `${50 + xRadius * Math.cos(angle)}%`;
   const top = `${50 + yRadius * Math.sin(angle)}%`;
   

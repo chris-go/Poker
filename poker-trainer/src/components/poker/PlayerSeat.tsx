@@ -36,18 +36,86 @@ const SeatContainer = styled.div<{ isActive?: boolean; isUser?: boolean }>`
       inset 0 1px 2px rgba(255, 255, 255, 0.1);
   `}
 
+  /* User styling based on orientation */
   ${props => props.isUser && `
-    transform: translateY(-25px);
     background-color: rgba(39, 39, 39, 0.85);
+    
+    /* Landscape-specific styling */
+    @media (orientation: landscape) {
+      transform: translateY(0); /* Reset vertical translation - handled by positioning */
+      min-width: 130px;
+      max-width: 160px;
+      padding: 12px;
+    }
+    
+    /* Portrait mode - revert to original styling */
+    @media (orientation: portrait) {
+      transform: translateY(-5px); /* Original vertical offset */
+    }
   `}
   
+  /* Larger player seats for bigger screens */
+  @media (orientation: landscape) and (min-width: 1024px) {
+    min-width: 120px;
+    max-width: 140px;
+    padding: 12px;
+    font-size: 1.05em;
+    
+    ${props => props.isActive && `
+      transform: scale(1.08);
+    `}
+    
+    ${props => props.isUser && `
+      min-width: 150px;
+      max-width: 180px;
+      padding: 14px;
+    `}
+  }
+  
+  /* Adjust sizing for landscape mode */
+  @media (orientation: landscape) {
+    min-width: 105px;
+    max-width: 120px;
+    padding: 8px;
+    
+    ${props => props.isUser && `
+      min-width: 130px;
+      max-width: 160px;
+      padding: 10px;
+    `}
+    
+    /* Scale down on smaller screens */
+    @media (max-height: 600px) {
+      min-width: 95px;
+      max-width: 110px;
+      padding: 6px;
+      font-size: 0.95em;
+      
+      ${props => props.isUser && `
+        min-width: 120px;
+        max-width: 150px;
+        padding: 8px;
+      `}
+    }
+  }
+  
+  /* Adjust for portrait/mobile */
   @media (orientation: portrait) and (max-width: 767px) {
     padding: 8px;
     min-width: 100px;
     max-width: 110px;
+  }
+  
+  /* Extra scaling for very narrow portrait devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    min-width: 85px;
+    max-width: 95px;
+    padding: 6px;
+    font-size: 0.9em;
+    border-radius: 8px;
     
-    ${props => props.isUser && `
-      transform: translateY(-20px);
+    ${props => props.isActive && `
+      transform: scale(1.03);
     `}
   }
 `;
@@ -62,6 +130,13 @@ const PositionBadge = styled.span`
   font-weight: 600;
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  
+  /* Smaller badge for very narrow devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    padding: 2px 6px;
+    font-size: 0.75em;
+    margin-right: 3px;
+  }
 `;
 
 const Stack = styled.div`
@@ -69,6 +144,19 @@ const Stack = styled.div`
   margin: 8px 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  
+  /* Make sure it doesn't overflow on small screens */
+  @media (max-height: 600px) and (orientation: landscape) {
+    margin: 6px 0;
+    font-size: 0.95em;
+  }
+  
+  /* Smaller stack display for very narrow devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    margin: 5px 0;
+    font-size: 0.9em;
+  }
 `;
 
 const PlayerCards = styled.div<{ isUser?: boolean }>`
@@ -81,6 +169,12 @@ const PlayerCards = styled.div<{ isUser?: boolean }>`
     position: relative;
     top: 5px;
   `}
+  
+  /* Smaller gap for very narrow devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    gap: 3px;
+    margin-top: 6px;
+  }
 `;
 
 const FaceDownCard = styled.div`
@@ -111,10 +205,22 @@ const FaceDownCard = styled.div`
     border-radius: 2px;
   }
   
+  /* Slightly larger cards on bigger screens */
+  @media (orientation: landscape) and (min-width: 1024px) {
+    width: 28px;
+    height: 38px;
+  }
+  
   /* Make cards more compact on mobile devices */
   @media (orientation: portrait) and (max-width: 767px) {
     width: 22px;
     height: 31px;
+  }
+  
+  /* Even smaller cards for very narrow devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    width: 20px;
+    height: 28px;
   }
 `;
 
@@ -124,6 +230,30 @@ const UserName = styled.span`
   margin-left: 4px;
   font-size: 0.9em;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  
+  /* Smaller text for very narrow devices */
+  @media (orientation: portrait) and (max-width: 380px) {
+    font-size: 0.8em;
+    margin-left: 2px;
+  }
+`;
+
+// Custom styling for user cards to make them larger
+const UserCards = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  
+  /* Scale up for different screen sizes */
+  @media (orientation: landscape) and (min-width: 1024px) {
+    gap: 8px;
+  }
+  
+  /* Handle mobile spacing */
+  @media (orientation: portrait) and (max-width: 380px) {
+    gap: 4px;
+  }
 `;
 
 const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBlindAmount = 1 }) => {
@@ -131,23 +261,31 @@ const PlayerSeat: React.FC<PlayerSeatProps> = ({ player, style, isActive, bigBli
     <SeatContainer style={style} isActive={isActive} isUser={player.isUser}>
       <div>
         <PositionBadge>{player.position}</PositionBadge>
-        {player.isUser && <UserName>👤 YOU</UserName>}
       </div>
       <Stack>{player.stack / bigBlindAmount} BB</Stack>
       
-      <PlayerCards isUser={player.isUser}>
-        {player.isUser && player.cards ? (
-          <>
-            <Card rank={player.cards[0].rank} suit={player.cards[0].suit} isUserCard={true} />
-            <Card rank={player.cards[1].rank} suit={player.cards[1].suit} isUserCard={true} />
-          </>
-        ) : (
-          <>
-            <FaceDownCard />
-            <FaceDownCard />
-          </>
-        )}
-      </PlayerCards>
+      {player.isUser && player.cards ? (
+        <UserCards>
+          {/* Larger user cards - approx double the area */}
+          <Card 
+            rank={player.cards[0].rank} 
+            suit={player.cards[0].suit} 
+            isUserCard={true} 
+            size="large" 
+          />
+          <Card 
+            rank={player.cards[1].rank} 
+            suit={player.cards[1].suit} 
+            isUserCard={true} 
+            size="large" 
+          />
+        </UserCards>
+      ) : (
+        <PlayerCards>
+          <FaceDownCard />
+          <FaceDownCard />
+        </PlayerCards>
+      )}
     </SeatContainer>
   );
 };

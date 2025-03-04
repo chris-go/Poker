@@ -6,11 +6,18 @@ interface CardProps {
   suit: string;
   faceDown?: boolean;
   isUserCard?: boolean;
+  size?: 'normal' | 'large';
 }
 
-const CardContainer = styled.div<{ isUserCard?: boolean }>`
-  width: ${props => props.isUserCard ? '50px' : '40px'};
-  height: ${props => props.isUserCard ? '75px' : '60px'};
+const CardContainer = styled.div<{ isUserCard?: boolean; size?: string }>`
+  width: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '70px';
+    return props.isUserCard ? '50px' : '40px';
+  }};
+  height: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '105px';
+    return props.isUserCard ? '75px' : '60px';
+  }};
   background-color: white;
   border-radius: 6px;
   display: flex;
@@ -23,8 +30,11 @@ const CardContainer = styled.div<{ isUserCard?: boolean }>`
       : '0 2px 8px rgba(0, 0, 0, 0.25)'};
   font-weight: bold;
   position: relative;
-  font-size: ${props => props.isUserCard ? '16px' : '14px'};
-  border: ${props => props.isUserCard ? '2px solid rgba(255, 255, 0, 0.3)' : 'none'};
+  font-size: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '18px';
+    return props.isUserCard ? '16px' : '14px';
+  }};
+  border: ${props => props.isUserCard ? '2px solid rgba(255, 215, 0, 0.7)' : 'none'};
   transition: all 0.15s ease;
   
   &:hover {
@@ -43,9 +53,15 @@ const CardContainer = styled.div<{ isUserCard?: boolean }>`
   }
 `;
 
-const CardBack = styled.div<{ isUserCard?: boolean }>`
-  width: ${props => props.isUserCard ? '50px' : '40px'};
-  height: ${props => props.isUserCard ? '75px' : '60px'};
+const CardBack = styled.div<{ isUserCard?: boolean; size?: string }>`
+  width: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '70px';
+    return props.isUserCard ? '50px' : '40px';
+  }};
+  height: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '105px';
+    return props.isUserCard ? '75px' : '60px';
+  }};
   border-radius: 6px;
   background: linear-gradient(135deg, #273c75 0%, #2c3e50 100%);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -83,12 +99,15 @@ const CardBack = styled.div<{ isUserCard?: boolean }>`
   }
 `;
 
-const TopCorner = styled.div<{ color: string; isUserCard?: boolean }>`
+const TopCorner = styled.div<{ color: string; isUserCard?: boolean; size?: string }>`
   position: absolute;
   top: 3px;
   left: 3px;
   color: ${props => props.color};
-  font-size: ${props => props.isUserCard ? '14px' : '12px'};
+  font-size: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '16px';
+    return props.isUserCard ? '14px' : '12px';
+  }};
   line-height: 1;
   font-weight: 700;
   text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
@@ -100,12 +119,15 @@ const TopCorner = styled.div<{ color: string; isUserCard?: boolean }>`
   }
 `;
 
-const BottomCorner = styled.div<{ color: string; isUserCard?: boolean }>`
+const BottomCorner = styled.div<{ color: string; isUserCard?: boolean; size?: string }>`
   position: absolute;
   bottom: 3px;
   right: 3px;
   color: ${props => props.color};
-  font-size: ${props => props.isUserCard ? '14px' : '12px'};
+  font-size: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '16px';
+    return props.isUserCard ? '14px' : '12px';
+  }};
   line-height: 1;
   transform: rotate(180deg);
   font-weight: 700;
@@ -118,13 +140,16 @@ const BottomCorner = styled.div<{ color: string; isUserCard?: boolean }>`
   }
 `;
 
-const Center = styled.div<{ color: string; isUserCard?: boolean }>`
+const Center = styled.div<{ color: string; isUserCard?: boolean; size?: string }>`
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: ${props => props.color};
-  font-size: ${props => props.isUserCard ? '26px' : '22px'};
+  font-size: ${props => {
+    if (props.size === 'large' && window.matchMedia('(orientation: landscape)').matches) return '32px';
+    return props.isUserCard ? '26px' : '22px';
+  }};
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   
   @media (orientation: portrait) and (max-width: 767px) {
@@ -132,9 +157,9 @@ const Center = styled.div<{ color: string; isUserCard?: boolean }>`
   }
 `;
 
-const Card: React.FC<CardProps> = ({ rank, suit, faceDown = false, isUserCard = false }) => {
+const Card: React.FC<CardProps> = ({ rank, suit, faceDown = false, isUserCard = false, size = 'normal' }) => {
   if (faceDown) {
-    return <CardBack isUserCard={isUserCard} />;
+    return <CardBack isUserCard={isUserCard} size={size} />;
   }
   
   // Determine card color based on suit
@@ -145,12 +170,12 @@ const Card: React.FC<CardProps> = ({ rank, suit, faceDown = false, isUserCard = 
   const displayRank = rank === '10' ? '10' : rank;
   
   return (
-    <CardContainer isUserCard={isUserCard}>
-      <TopCorner color={color} isUserCard={isUserCard}>
+    <CardContainer isUserCard={isUserCard} size={size}>
+      <TopCorner color={color} isUserCard={isUserCard} size={size}>
         {displayRank}<br/>{suit}
       </TopCorner>
-      <Center color={color} isUserCard={isUserCard}>{suit}</Center>
-      <BottomCorner color={color} isUserCard={isUserCard}>
+      <Center color={color} isUserCard={isUserCard} size={size}>{suit}</Center>
+      <BottomCorner color={color} isUserCard={isUserCard} size={size}>
         {displayRank}<br/>{suit}
       </BottomCorner>
     </CardContainer>
