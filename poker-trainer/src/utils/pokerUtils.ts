@@ -12,7 +12,7 @@ export const getPositionsForPlayerCount = (count: number): Position[] => {
 
   // For heads-up (2 players)
   if (count === 2) {
-    return ['BTN', 'BB'] as Position[]; // In heads-up, SB is BTN
+    return ['SB', 'BB'] as Position[]; // In heads-up, positions are SB and BB
   }
   
   // For 3 players
