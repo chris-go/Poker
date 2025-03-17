@@ -1,4 +1,12 @@
 import { Card, GameType, Position, PokerPuzzle, Player, PlayerAction } from '../types/poker';
+import { 
+  isInHeadsUpSB10bbRange, 
+  isInHeadsUpSB20bbRange, 
+  isInHeadsUpSB30bbRange,
+  shouldRaiseInHeadsUpSB50bbRange,
+  shouldCallInHeadsUpSB50bbRange,
+  shouldRaiseInHeadsUpSB100bbRange
+} from './preflopRanges';
 
 // Array of positions in order of first to act to last to act
 // Order: UTG, UTG+1, UTG+2, MP, LJ, HJ, CO, BTN, SB, BB
@@ -141,25 +149,77 @@ export const createSamplePuzzle = (
   // Random pot size between 5 and 20 big blinds
   const potSize = bigBlind * (Math.floor(Math.random() * 15) + 5);
   
-  // Generate a random correct action
-  const actions: PlayerAction[] = ['FOLD', 'CALL', 'RAISE', 'CHECK'];
-  const correctAction = actions[Math.floor(Math.random() * actions.length)];
+  // Generate a random correct action based on position and stack size
+  let correctAction: PlayerAction;
+  let actionDescription: string;
   
-  // Generate a simple action description
-  let actionDescription = 'You should ';
-  switch (correctAction) {
-    case 'FOLD':
-      actionDescription += 'fold this hand as it is weak and not worth continuing.';
-      break;
-    case 'CALL':
-      actionDescription += 'call to see the next card as you have a drawing hand.';
-      break;
-    case 'RAISE':
-      actionDescription += 'raise to build the pot with your strong hand.';
-      break;
-    case 'CHECK':
-      actionDescription += 'check to see the next card for free.';
-      break;
+  // Special handling for heads-up small blind with specific stack sizes
+  if (playerCount === 2 && userPosition === 'SB') {
+    const userPlayer = playersWithCards.find(p => p.isUser);
+    if (userPlayer?.cards) {
+      let isInRange = false;
+      let rangeDescription = '';
+      let actionVerb = 'push all-in';
+      let shouldCall = false;
+      
+      if (bigBlinds === 10) {
+        isInRange = isInHeadsUpSB10bbRange(userPlayer.cards);
+        rangeDescription = 'all pocket pairs, all ace-high hands, all king-high hands, queen-high hands from Q5 to QK, jack-high hands from J7 to JK, ten-high hands from T8 to TA, and the specific suited hand 53s';
+      } else if (bigBlinds === 20) {
+        isInRange = isInHeadsUpSB20bbRange(userPlayer.cards);
+        rangeDescription = 'all pocket pairs, all ace-high hands, all king-high hands, all queen-high hands, all jack-high hands, all ten-high hands, all suited nine-high hands (92s to 98s), and specific nine-high offsuit hands (98o and 97o)';
+      } else if (bigBlinds === 30) {
+        isInRange = isInHeadsUpSB30bbRange(userPlayer.cards);
+        rangeDescription = 'all pocket pairs, all ace-high hands, all king-high hands, queen-high hands from Q5 to QJ, jack-high hands from J7 to JT, ten-high hands T8 and T9, all suited nine-high hands (92s to 98s), and specific nine-high offsuit hands (98o and 97o)';
+        actionVerb = 'raise';
+      } else if (bigBlinds === 50) {
+        isInRange = shouldRaiseInHeadsUpSB50bbRange(userPlayer.cards);
+        shouldCall = shouldCallInHeadsUpSB50bbRange(userPlayer.cards);
+        rangeDescription = 'approximately 92-96% of all hands, including all pocket pairs, all hands with an ace, all hands with a king/queen/jack/ten, suited connectors and gappers (down to 43s), and many offsuit broadway hands. The calling range includes weak suited aces (A2s-A5s) and low suited connectors (65s, 54s). Only the bottom 4% of hands (like 72o, 83o, 94o) are folded';
+        actionVerb = 'raise';
+      } else if (bigBlinds === 100) {
+        isInRange = shouldRaiseInHeadsUpSB100bbRange(userPlayer.cards);
+        rangeDescription = 'all pocket pairs, all ace-high hands, all king-high hands, all queen-high hands, all jack-high hands, all ten-high hands, all suited nine-high hands (92s-98s), and specific nine-high offsuit hands (98o and 97o)';
+        actionVerb = 'raise';
+      }
+      
+      if (isInRange) {
+        correctAction = 'RAISE';
+        actionDescription = `With ${bigBlinds}bb stacks in heads-up play, you should ${actionVerb} with this hand as it is in the optimal raising range. This range includes ${rangeDescription}.`;
+      } else if (shouldCall) {
+        correctAction = 'CALL';
+        actionDescription = `With ${bigBlinds}bb stacks in heads-up play, you should call with this hand as it is in the optimal calling range. The complete range includes ${rangeDescription}.`;
+      } else {
+        correctAction = 'FOLD';
+        actionDescription = `With ${bigBlinds}bb stacks in heads-up play, you should fold this hand as it is not in the optimal raising or calling range. The complete range includes ${rangeDescription}.`;
+      }
+    } else {
+      // If we can't see the user's cards (shouldn't happen), default to random action
+      const actions: PlayerAction[] = ['FOLD', 'CALL', 'RAISE', 'CHECK'];
+      correctAction = actions[Math.floor(Math.random() * actions.length)];
+      actionDescription = 'Unable to determine optimal action without seeing the cards.';
+    }
+  } else {
+    // Default random action for other scenarios
+    const actions: PlayerAction[] = ['FOLD', 'CALL', 'RAISE', 'CHECK'];
+    correctAction = actions[Math.floor(Math.random() * actions.length)];
+    
+    // Generate a simple action description
+    actionDescription = 'You should ';
+    switch (correctAction) {
+      case 'FOLD':
+        actionDescription += 'fold this hand as it is weak and not worth continuing.';
+        break;
+      case 'CALL':
+        actionDescription += 'call to see the next card as you have a drawing hand.';
+        break;
+      case 'RAISE':
+        actionDescription += 'raise to build the pot with your strong hand.';
+        break;
+      case 'CHECK':
+        actionDescription += 'check to see the next card for free.';
+        break;
+    }
   }
   
   // Create the puzzle object
